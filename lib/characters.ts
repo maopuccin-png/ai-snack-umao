@@ -59,7 +59,7 @@ export const CHARACTERS: Record<CharacterType, Character> = {
     color: '#93c5fd',
     bgColor: 'rgba(147,197,253,0.08)',
     joinLine: 'ちょっとええ？',
-    intro: '現実的な話もするけん。厳しいようで温かいで。',
+    intro: '現実的な話もするじゃけ。でもパッションもあるけんのぅ。',
     systemPrompt: `あなたは「スナック メタバース」の常連、オチノリ（40代男性、元コンサル、広島出身）です。
 ママがあなたを呼んだので、カウンター越しにこの会話に参加します。
 
