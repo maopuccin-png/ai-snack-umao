@@ -1,65 +1,112 @@
-import Image from "next/image";
+'use client'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { MOODS, MoodType } from '@/lib/characters'
 
-export default function Home() {
+export default function EntryPage() {
+  const router = useRouter()
+  const [nickname, setNickname] = useState('')
+  const [mood, setMood] = useState<MoodType | null>(null)
+  const [entering, setEntering] = useState(false)
+
+  const canEnter = nickname.trim().length > 0 && mood !== null
+
+  const handleEnter = () => {
+    if (!canEnter || entering) return
+    setEntering(true)
+    setTimeout(() => {
+      router.push(`/chat?nickname=${encodeURIComponent(nickname.trim())}&mood=${mood}`)
+    }, 900)
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="min-h-screen flex items-center justify-center px-4" style={{ background: 'rgba(8,6,18,0.82)' }}>
+      {entering && (
+        <div className="fixed inset-0 bg-[#0d0d18] z-50 flex items-center justify-center">
+          <p className="text-amber-400 text-base font-light tracking-[0.4em] animate-pulse">
+            いらっしゃい…
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      )}
+
+      <div className="w-full max-w-xs flex flex-col items-center gap-7">
+        {/* Sign */}
+        <div className="text-center select-none">
+          <div className="text-[10px] tracking-[0.4em] text-amber-600 mb-2 opacity-80">OPEN</div>
+          <h1
+            className="text-3xl font-bold text-white mb-2"
+            style={{ fontFamily: 'Georgia, serif', letterSpacing: '0.05em' }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            スナック メタバース
+            <br />
+            UMAO
+          </h1>
+          <p className="text-[11px] text-gray-600 leading-relaxed">
+            チャージなし・セット料金なし
+            <br />
+            飲み物は自由（ノンアルOK）
+          </p>
         </div>
-      </main>
-    </div>
-  );
+
+        <div className="w-full border-t border-gray-900" />
+
+        {/* Nickname */}
+        <div className="w-full">
+          <label className="text-[11px] text-gray-500 tracking-wider block mb-2">
+            お名前は？
+          </label>
+          <input
+            type="text"
+            value={nickname}
+            onChange={e => setNickname(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleEnter()}
+            placeholder="ニックネームでOK"
+            maxLength={20}
+            autoFocus
+            className="w-full bg-[#13111e] border border-gray-800 rounded-lg px-4 py-3 text-white text-sm placeholder-gray-700 focus:outline-none focus:border-amber-900 transition-colors"
+          />
+        </div>
+
+        {/* Mood */}
+        <div className="w-full">
+          <label className="text-[11px] text-gray-500 tracking-wider block mb-3">
+            今日はどんな感じ？
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            {(Object.entries(MOODS) as [MoodType, typeof MOODS[MoodType]][]).map(([key, m]) => (
+              <button
+                key={key}
+                onClick={() => setMood(key)}
+                className={`p-3 rounded-lg border text-left transition-all ${
+                  mood === key
+                    ? 'border-amber-700 bg-amber-950/20 text-amber-300'
+                    : 'border-gray-800 bg-[#13111e] text-gray-500 hover:border-gray-700 hover:text-gray-400'
+                }`}
+              >
+                <div className="text-xs font-medium leading-snug">{m.label}</div>
+                <div className="text-[10px] text-gray-700 mt-0.5">{m.description}</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Enter */}
+        <button
+          onClick={handleEnter}
+          disabled={!canEnter}
+          className={`w-full py-3 rounded-lg text-sm font-medium tracking-[0.2em] transition-all ${
+            canEnter
+              ? 'bg-amber-700 hover:bg-amber-600 text-white cursor-pointer'
+              : 'bg-[#13111e] text-gray-700 cursor-not-allowed'
+          }`}
+        >
+          入 店 す る
+        </button>
+
+        <p className="text-[10px] text-gray-700 text-center">
+          会話の内容は保存されません
+        </p>
+      </div>
+    </main>
+  )
 }
