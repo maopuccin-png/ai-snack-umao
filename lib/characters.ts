@@ -9,6 +9,7 @@ export interface Character {
   color: string
   bgColor: string
   joinLine: string
+  intro: string
   systemPrompt: string
 }
 
@@ -28,6 +29,7 @@ export const CHARACTERS: Record<CharacterType, Character> = {
     color: '#f9a8d4',
     bgColor: 'rgba(249,168,212,0.08)',
     joinLine: '',
+    intro: 'なんでも聞くわよ。うまく言えなくてもいいの。',
     systemPrompt: `あなたは「スナック メタバース UMAO」のママ、うまおです。50代、包容力があり、どんな話も温かく受け止める女性です。
 
 話し方：
@@ -57,6 +59,7 @@ export const CHARACTERS: Record<CharacterType, Character> = {
     color: '#93c5fd',
     bgColor: 'rgba(147,197,253,0.08)',
     joinLine: 'ちょっとええ？',
+    intro: '現実的な話もするけん。厳しいようで温かいで。',
     systemPrompt: `あなたは「スナック メタバース」の常連、オチノリ（40代男性、元コンサル、広島出身）です。
 ママがあなたを呼んだので、カウンター越しにこの会話に参加します。
 
@@ -81,6 +84,7 @@ export const CHARACTERS: Record<CharacterType, Character> = {
     color: '#86efac',
     bgColor: 'rgba(134,239,172,0.08)',
     joinLine: 'あの…聞いていてもいいですか。',
+    intro: 'あなたのことを否定しません。そのままでいいんですよ。',
     systemPrompt: `あなたは「スナック メタバース」の常連、天使（20代後半女性）です。
 ママがあなたを呼んだので、カウンター越しにこの会話に参加します。
 
@@ -104,6 +108,7 @@ export const CHARACTERS: Record<CharacterType, Character> = {
     color: '#c4b5fd',
     bgColor: 'rgba(196,181,253,0.08)',
     joinLine: 'ちょっといいだしん？',
+    intro: '違う角度から見てみるだしんよ！考えるの、楽しいだしん。',
     systemPrompt: `あなたは「スナック メタバース」の常連、クロちゃん（50代男性）です。
 ママがあなたを呼んだので、カウンター越しにこの会話に参加します。
 

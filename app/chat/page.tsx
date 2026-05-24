@@ -20,6 +20,7 @@ interface Message {
   isDrink?: boolean
   isAway?: boolean
   isReturn?: boolean
+  isIntro?: boolean
 }
 
 type CharStatus = 'absent' | 'present' | 'away'
@@ -252,13 +253,20 @@ function ChatContent() {
       characterId: 'mama',
       isDrink: true,
     }
+    const introMsg: Message = {
+      id: 'intro',
+      role: 'assistant',
+      content: '今夜のメンバーを紹介するわね。',
+      characterId: 'mama',
+      isIntro: true,
+    }
     const followMsg: Message = {
       id: 'follow',
       role: 'assistant',
       content: '今日はどうしたの？',
       characterId: 'mama',
     }
-    setMessages([openMsg, drinkMsg, followMsg])
+    setMessages([openMsg, drinkMsg, introMsg, followMsg])
   }, [mood])
 
   const callAPI = async (msgs: Message[], characterId: CharacterType) => {
@@ -535,6 +543,47 @@ function ChatContent() {
                         <p className="text-gray-600 text-[10px]">{drink.description}</p>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </div>
+            )
+          }
+
+          // Intro card
+          if (msg.isIntro) {
+            return (
+              <div key={msg.id} className="flex gap-3">
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-lg flex-shrink-0 mt-0.5 border-2"
+                  style={{ borderColor: char.color, backgroundColor: char.bgColor }}
+                >
+                  {char.emoji}
+                </div>
+                <div className="max-w-[85%]">
+                  <p className="text-[10px] mb-1 font-medium" style={{ color: char.color }}>{char.title}</p>
+                  <div
+                    className="rounded-2xl rounded-tl-sm px-4 py-3 text-sm text-gray-300 border mb-2"
+                    style={{ backgroundColor: char.bgColor, borderColor: `${char.color}22` }}
+                  >
+                    {msg.content}
+                  </div>
+                  <div className="border border-gray-800 rounded-xl overflow-hidden">
+                    {CHAR_ORDER.map((cid, i) => {
+                      const c = CHARACTERS[cid]
+                      return (
+                        <div
+                          key={cid}
+                          className={`flex items-center gap-3 px-3 py-2.5 ${i !== CHAR_ORDER.length - 1 ? 'border-b border-gray-800' : ''}`}
+                          style={{ backgroundColor: `${c.bgColor}` }}
+                        >
+                          <span className="text-xl flex-shrink-0">{c.emoji}</span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium" style={{ color: c.color }}>{c.name}</p>
+                            <p className="text-[10px] text-gray-500 leading-relaxed">{c.intro}</p>
+                          </div>
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               </div>
