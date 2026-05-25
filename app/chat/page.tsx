@@ -41,6 +41,34 @@ function detectTrigger(text: string, skip: Set<CharacterType>): CharacterType | 
 
 const CHAR_ORDER: CharacterType[] = ['mama', 'realist', 'accepter', 'observer']
 
+// ─── @メンション ──────────────────────────────────────────────────────────
+const MENTION_MAP: Record<string, CharacterType> = {
+  'うまお': 'mama', 'ママ': 'mama',
+  'オチノリ': 'realist',
+  '天使': 'accepter',
+  'クロちゃん': 'observer', 'クロ': 'observer',
+}
+const MENTION_NAMES = [
+  { name: 'うまお',    cid: 'mama'     as CharacterType },
+  { name: 'オチノリ',  cid: 'realist'  as CharacterType },
+  { name: '天使',      cid: 'accepter' as CharacterType },
+  { name: 'クロちゃん',cid: 'observer' as CharacterType },
+]
+
+function parseMention(text: string): CharacterType | null {
+  const m = text.match(/@(\S+)/)
+  if (!m) return null
+  return MENTION_MAP[m[1]] ?? null
+}
+
+function renderWithMention(text: string) {
+  return text.split(/(@\S+)/).map((part, i) =>
+    part.startsWith('@')
+      ? <span key={i} className="text-amber-400 font-medium">{part}</span>
+      : part
+  )
+}
+
 // ─── Tip Modal ────────────────────────────────────────────────────────────
 function TipModal({
   activeChars,
@@ -221,6 +249,25 @@ function ChatContent() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [mentionCandidates, setMentionCandidates] = useState<typeof MENTION_NAMES>([])
+
+  // @入力を検知してオートコンプリート候補を更新
+  const handleInputChange = (val: string) => {
+    setInput(val)
+    const m = val.match(/@(\S*)$/)
+    if (m) {
+      const q = m[1].toLowerCase()
+      setMentionCandidates(MENTION_NAMES.filter(n => n.name.toLowerCase().startsWith(q)))
+    } else {
+      setMentionCandidates([])
+    }
+  }
+
+  const insertMention = (name: string) => {
+    const replaced = input.replace(/@\S*$/, `@${name} `)
+    setInput(replaced)
+    setMentionCandidates([])
+  }
   const [charStatus, setCharStatus] = useState<Record<CharacterType, CharStatus>>({
     mama: 'present', realist: 'absent', accepter: 'absent', observer: 'absent',
   })
@@ -319,70 +366,87 @@ function ChatContent() {
         }
       }
 
-      // ── Mama responds ──
-      const mamaRes = await callAPI(current, 'mama')
-      const mamaMsg: Message = { id: `m${Date.now()}`, role: 'assistant', content: mamaRes.message, characterId: 'mama' }
-      current = addMsg(current, mamaMsg)
+      // ── @メンション分岐 ──
+      const mentionedChar = parseMention(text)
 
-      // ── Determine next regular to join ──
-      const presentSet = new Set(
-        CHAR_ORDER.filter(c => charStatus[c] === 'present') as CharacterType[]
-      )
-      const absentSet = new Set(
-        CHAR_ORDER.filter(c => charStatus[c] === 'absent') as CharacterType[]
-      )
-
-      let triggerChar: CharacterType | null = mamaRes.callNext ?? null
-      if (!triggerChar && turn >= 1 && absentSet.size > 0) {
-        const allUserText = current.filter(m => m.role === 'user').map(m => m.content).join(' ')
-        triggerChar = detectTrigger(allUserText, presentSet)
-      }
-      // Only let regulars join: not mama, not already present/away
-      if (triggerChar === 'mama' || !absentSet.has(triggerChar as CharacterType)) {
-        triggerChar = null
-      }
-
-      if (triggerChar) {
-        const reg = CHARACTERS[triggerChar]
-        await new Promise(r => setTimeout(r, 500))
-
-        const joinMsg: Message = {
-          id: `j${Date.now()}`,
-          role: 'assistant',
-          content: reg.joinLine,
-          characterId: triggerChar,
-          isJoining: true,
+      if (mentionedChar) {
+        // 不在なら入店させる
+        if (charStatus[mentionedChar] === 'absent') {
+          const reg = CHARACTERS[mentionedChar]
+          await new Promise(r => setTimeout(r, 400))
+          const joinMsg: Message = {
+            id: `j${Date.now()}`, role: 'assistant',
+            content: reg.joinLine, characterId: mentionedChar, isJoining: true,
+          }
+          current = addMsg(current, joinMsg)
+          setCharStatus(prev => ({ ...prev, [mentionedChar]: 'present' }))
+          joinedAtTurn.current[mentionedChar] = turn
+          await new Promise(r => setTimeout(r, 600))
         }
-        current = addMsg(current, joinMsg)
-        setCharStatus(prev => ({ ...prev, [triggerChar!]: 'present' }))
-        joinedAtTurn.current[triggerChar] = turn
-
-        await new Promise(r => setTimeout(r, 700))
-        const regRes = await callAPI(current, triggerChar)
-        const regMsg: Message = {
-          id: `r${Date.now()}`,
-          role: 'assistant',
-          content: regRes.message,
-          characterId: triggerChar,
-        }
-        current = addMsg(current, regMsg)
-      } else if (presentSet.size > 1) {
-        // ── Existing regulars may also respond if relevant ──
-        const others = [...presentSet].filter(c => c !== 'mama')
-        for (const cid of others) {
-          const lastUserText = text
-          const charWords = TRIGGERS[cid] as string[] | undefined
-          if (charWords?.some(w => lastUserText.includes(w))) {
-            await new Promise(r => setTimeout(r, 600))
-            const res = await callAPI(current, cid)
-            const msg: Message = {
-              id: `e${Date.now()}`,
-              role: 'assistant',
-              content: res.message,
-              characterId: cid,
+        // 席外し中なら呼び戻す
+        if (charStatus[mentionedChar] === 'away') {
+          const retMsgs = RETURN_MESSAGES[mentionedChar]
+          if (retMsgs) {
+            const retMsg: Message = {
+              id: `ret${Date.now()}`, role: 'assistant',
+              content: pick(retMsgs), characterId: mentionedChar, isReturn: true,
             }
-            current = addMsg(current, msg)
-            break // one extra response per turn max
+            current = addMsg(current, retMsg)
+            setCharStatus(prev => ({ ...prev, [mentionedChar]: 'present' }))
+            delete awayReturnAt.current[mentionedChar]
+            await new Promise(r => setTimeout(r, 400))
+          }
+        }
+        // 指名キャラが直接返す
+        const mentionRes = await callAPI(current, mentionedChar)
+        current = addMsg(current, {
+          id: `mn${Date.now()}`, role: 'assistant',
+          content: mentionRes.message, characterId: mentionedChar,
+        })
+      } else {
+        // ── 通常フロー：ママが返す ──
+        const mamaRes = await callAPI(current, 'mama')
+        const mamaMsg: Message = { id: `m${Date.now()}`, role: 'assistant', content: mamaRes.message, characterId: 'mama' }
+        current = addMsg(current, mamaMsg)
+
+        // ── 常連参加判定 ──
+        const presentSet = new Set(CHAR_ORDER.filter(c => charStatus[c] === 'present') as CharacterType[])
+        const absentSet  = new Set(CHAR_ORDER.filter(c => charStatus[c] === 'absent')  as CharacterType[])
+
+        let triggerChar: CharacterType | null = mamaRes.callNext ?? null
+        if (!triggerChar && turn >= 1 && absentSet.size > 0) {
+          const allUserText = current.filter(m => m.role === 'user').map(m => m.content).join(' ')
+          triggerChar = detectTrigger(allUserText, presentSet)
+        }
+        if (triggerChar === 'mama' || !absentSet.has(triggerChar as CharacterType)) triggerChar = null
+
+        if (triggerChar) {
+          const reg = CHARACTERS[triggerChar]
+          await new Promise(r => setTimeout(r, 500))
+          current = addMsg(current, {
+            id: `j${Date.now()}`, role: 'assistant',
+            content: reg.joinLine, characterId: triggerChar, isJoining: true,
+          })
+          setCharStatus(prev => ({ ...prev, [triggerChar!]: 'present' }))
+          joinedAtTurn.current[triggerChar] = turn
+          await new Promise(r => setTimeout(r, 700))
+          const regRes = await callAPI(current, triggerChar)
+          current = addMsg(current, {
+            id: `r${Date.now()}`, role: 'assistant',
+            content: regRes.message, characterId: triggerChar,
+          })
+        } else if (presentSet.size > 1) {
+          for (const cid of [...presentSet].filter(c => c !== 'mama')) {
+            const charWords = TRIGGERS[cid] as string[] | undefined
+            if (charWords?.some(w => text.includes(w))) {
+              await new Promise(r => setTimeout(r, 600))
+              const res = await callAPI(current, cid)
+              current = addMsg(current, {
+                id: `e${Date.now()}`, role: 'assistant',
+                content: res.message, characterId: cid,
+              })
+              break
+            }
           }
         }
       }
@@ -510,7 +574,7 @@ function ChatContent() {
                 <div className="max-w-[78%]">
                   <p className="text-[10px] text-gray-600 text-right mb-1">{nickname}</p>
                   <div className="bg-[#1c1730] text-gray-200 rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed">
-                    {msg.content}
+                    {renderWithMention(msg.content)}
                   </div>
                 </div>
               </div>
@@ -668,16 +732,35 @@ function ChatContent() {
           >
             🪙
           </button>
+          <div className="flex-1 relative">
+            {mentionCandidates.length > 0 && (
+              <div className="absolute bottom-full mb-1 left-0 bg-[#1a1030] border border-gray-800 rounded-xl overflow-hidden z-20 w-48">
+                {mentionCandidates.map(({ name, cid }) => {
+                  const c = CHARACTERS[cid]
+                  return (
+                    <button
+                      key={cid}
+                      onMouseDown={e => { e.preventDefault(); insertMention(name) }}
+                      className="w-full flex items-center gap-2 px-3 py-2 hover:bg-[#251d3a] text-left transition-colors"
+                    >
+                      <span>{c.emoji}</span>
+                      <span className="text-xs font-medium" style={{ color: c.color }}>@{name}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            )}
           <textarea
             value={input}
-            onChange={e => setInput(e.target.value)}
+            onChange={e => handleInputChange(e.target.value)}
             onKeyDown={e => {
               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
             }}
-            placeholder="なんか言う…（うまく言えなくてもOK）"
+            placeholder="なんか言う… @名前 で指名もできます"
             rows={2}
-            className="flex-1 bg-[#13111e] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-700 focus:outline-none focus:border-gray-700 resize-none leading-relaxed"
+            className="w-full bg-[#13111e] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-700 focus:outline-none focus:border-gray-700 resize-none leading-relaxed"
           />
+          </div>
           <button
             onClick={handleSend}
             disabled={!input.trim() || loading}
