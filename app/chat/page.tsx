@@ -660,6 +660,14 @@ function ChatContent() {
       {/* ── Input ── */}
       <div className="px-4 py-3 border-t border-gray-900 sticky bottom-0 backdrop-blur-md" style={{ background: 'rgba(8,6,18,0.85)' }}>
         <div className="flex gap-2 items-end">
+          <button
+            onClick={() => setShowTip(true)}
+            className="px-3 rounded-xl border border-amber-900/50 text-amber-700 hover:text-amber-500 hover:border-amber-700 transition-colors text-lg flex-shrink-0"
+            style={{ height: '62px' }}
+            title="投げ銭する"
+          >
+            🪙
+          </button>
           <textarea
             value={input}
             onChange={e => setInput(e.target.value)}
