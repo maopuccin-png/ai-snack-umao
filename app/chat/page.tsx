@@ -722,16 +722,9 @@ function ChatContent() {
       </div>
 
       {/* ── Input ── */}
-      <div className="px-4 py-3 border-t border-gray-900 sticky bottom-0 backdrop-blur-md" style={{ background: 'rgba(8,6,18,0.85)' }}>
+      <div className="px-4 pt-3 pb-2 border-t border-gray-900 sticky bottom-0 backdrop-blur-md" style={{ background: 'rgba(8,6,18,0.85)' }}>
+        {/* Row 1: textarea + 話しかけるボタン */}
         <div className="flex gap-2 items-end">
-          <button
-            onClick={() => setShowTip(true)}
-            className="px-3 rounded-xl border border-amber-900/50 text-amber-700 hover:text-amber-500 hover:border-amber-700 transition-colors text-lg flex-shrink-0"
-            style={{ height: '62px' }}
-            title="投げ銭する"
-          >
-            🪙
-          </button>
           <div className="flex-1 relative">
             {mentionCandidates.length > 0 && (
               <div className="absolute bottom-full mb-1 left-0 bg-[#1a1030] border border-gray-800 rounded-xl overflow-hidden z-20 w-48">
@@ -750,26 +743,33 @@ function ChatContent() {
                 })}
               </div>
             )}
-          <textarea
-            value={input}
-            onChange={e => handleInputChange(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
-            }}
-            placeholder="なんか言う… @名前 で指名もできます"
-            rows={2}
-            className="w-full bg-[#13111e] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-700 focus:outline-none focus:border-gray-700 resize-none leading-relaxed"
-          />
+            <textarea
+              value={input}
+              onChange={e => handleInputChange(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
+              }}
+              placeholder="なんか言う… @名前 で指名もできます"
+              rows={2}
+              className="w-full bg-[#13111e] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-700 focus:outline-none focus:border-gray-700 resize-none leading-relaxed"
+            />
           </div>
           <button
             onClick={handleSend}
             disabled={!input.trim() || loading}
-            className="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-amber-700 hover:bg-amber-600 disabled:bg-[#13111e] disabled:text-gray-700 text-white"
+            className="px-4 py-3 rounded-xl text-sm font-medium transition-all bg-amber-700 hover:bg-amber-600 disabled:bg-[#13111e] disabled:text-gray-700 text-white flex-shrink-0"
             style={{ height: '62px' }}
           >
-            送る
+            話しかける
           </button>
         </div>
+        {/* Row 2: 投げ銭ボタン */}
+        <button
+          onClick={() => setShowTip(true)}
+          className="mt-2 w-full py-2 rounded-xl border border-amber-900/40 text-amber-700 hover:text-amber-500 hover:border-amber-700 transition-colors text-xs font-medium"
+        >
+          🪙 スナックへ投げ銭する
+        </button>
         <p className="text-[10px] text-gray-800 mt-1.5 text-right">Shift+Enter で改行</p>
       </div>
 
