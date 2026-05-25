@@ -7,7 +7,7 @@ import {
 } from '@/lib/characters'
 import {
   DRINKS, AWAY_MESSAGES, RETURN_MESSAGES,
-  FAREWELL, TIP_THANKS, getSummary,
+  FAREWELL, TIP_THANKS, GREETINGS, getSummary,
 } from '@/lib/mockResponses'
 
 // ─── Types ────────────────────────────────────────────────────────────────
@@ -275,6 +275,51 @@ function ChatContent() {
   const joinedAtTurn = useRef<Partial<Record<CharacterType, number>>>({})
   const awayReturnAt = useRef<Partial<Record<CharacterType, number>>>({})
 
+  const [focusedChar, setFocusedChar] = useState<CharacterType>('mama')
+
+  const handleFocusChar = async (cid: CharacterType) => {
+    if (cid === focusedChar) return
+    setFocusedChar(cid)
+    const turn = turnRef.current
+
+    let current = messages
+    // absent → join first
+    if (charStatus[cid] === 'absent') {
+      const reg = CHARACTERS[cid]
+      await new Promise(r => setTimeout(r, 300))
+      const joinMsg: Message = {
+        id: `j${Date.now()}`, role: 'assistant',
+        content: reg.joinLine, characterId: cid, isJoining: true,
+      }
+      current = [...current, joinMsg]
+      setMessages(current)
+      setCharStatus(prev => ({ ...prev, [cid]: 'present' }))
+      joinedAtTurn.current[cid] = turn
+      await new Promise(r => setTimeout(r, 500))
+    }
+    // away → return
+    if (charStatus[cid] === 'away') {
+      const retMsgs = RETURN_MESSAGES[cid]
+      if (retMsgs) {
+        const retMsg: Message = {
+          id: `ret${Date.now()}`, role: 'assistant',
+          content: pick(retMsgs), characterId: cid, isReturn: true,
+        }
+        current = [...current, retMsg]
+        setMessages(current)
+        setCharStatus(prev => ({ ...prev, [cid]: 'present' }))
+        delete awayReturnAt.current[cid]
+        await new Promise(r => setTimeout(r, 400))
+      }
+    }
+    // greeting
+    const greetMsg: Message = {
+      id: `gr${Date.now()}`, role: 'assistant',
+      content: pick(GREETINGS[cid]), characterId: cid,
+    }
+    setMessages(prev => [...prev, greetMsg])
+  }
+
   const [showTip, setShowTip] = useState(false)
   const [showExit, setShowExit] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -402,6 +447,13 @@ function ChatContent() {
         current = addMsg(current, {
           id: `mn${Date.now()}`, role: 'assistant',
           content: mentionRes.message, characterId: mentionedChar,
+        })
+      } else if (focusedChar !== 'mama') {
+        // ── 指名キャラに直接送る ──
+        const focusRes = await callAPI(current, focusedChar)
+        current = addMsg(current, {
+          id: `f${Date.now()}`, role: 'assistant',
+          content: focusRes.message, characterId: focusedChar,
         })
       } else {
         // ── 通常フロー：ママが返す ──
@@ -533,18 +585,23 @@ function ChatContent() {
           const status = charStatus[cid]
           const isPresent = status === 'present'
           const isAway = status === 'away'
+          const isFocused = cid === focusedChar
           return (
-            <div
+            <button
               key={cid}
-              className={`flex flex-col items-center gap-1 transition-all duration-500 flex-shrink-0 ${
-                isPresent ? 'opacity-100' : isAway ? 'opacity-40' : 'opacity-15'
+              onClick={() => handleFocusChar(cid)}
+              className={`flex flex-col items-center gap-1 transition-all duration-500 flex-shrink-0 cursor-pointer active:scale-95 ${
+                isPresent ? 'opacity-100' : isAway ? 'opacity-40' : 'opacity-20'
               }`}
             >
               <div
-                className="w-10 h-10 rounded-full flex items-center justify-center text-xl border-2 transition-all relative"
+                className="w-10 h-10 rounded-full flex items-center justify-center text-xl transition-all relative"
                 style={{
-                  borderColor: isPresent ? c.color : '#2a2a3a',
-                  backgroundColor: isPresent ? c.bgColor : 'transparent',
+                  border: isFocused
+                    ? `2.5px solid ${c.color}`
+                    : `2px solid ${isPresent ? c.color + '80' : '#2a2a3a'}`,
+                  backgroundColor: isFocused ? c.bgColor : isPresent ? c.bgColor + '60' : 'transparent',
+                  boxShadow: isFocused ? `0 0 8px ${c.color}55` : 'none',
                 }}
               >
                 {c.emoji}
@@ -554,10 +611,15 @@ function ChatContent() {
                   </span>
                 )}
               </div>
-              <span className="text-[10px] font-medium" style={{ color: isPresent ? c.color : '#444' }}>
+              <span className="text-[10px] font-medium" style={{ color: isFocused ? c.color : isPresent ? c.color + 'aa' : '#444' }}>
                 {c.name}
               </span>
-            </div>
+              {isFocused && (
+                <span className="text-[8px] rounded-full px-1.5 py-0.5" style={{ backgroundColor: c.color + '22', color: c.color }}>
+                  話し中
+                </span>
+              )}
+            </button>
           )
         })}
       </div>
