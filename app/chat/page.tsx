@@ -333,7 +333,7 @@ function ChatContent() {
       )
 
       let triggerChar: CharacterType | null = mamaRes.callNext ?? null
-      if (!triggerChar && turn >= 2 && absentSet.size > 0) {
+      if (!triggerChar && turn >= 1 && absentSet.size > 0) {
         const allUserText = current.filter(m => m.role === 'user').map(m => m.content).join(' ')
         triggerChar = detectTrigger(allUserText, presentSet)
       }

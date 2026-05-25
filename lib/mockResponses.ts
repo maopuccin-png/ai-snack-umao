@@ -252,7 +252,7 @@ export function getMockResponse(
   for (const entry of mamaByKeyword) {
     if (entry.words.some(w => userMessage.includes(w))) {
       const message = pick(entry.responses)
-      const callNext = (turnCount >= 2 && entry.callNext) ? entry.callNext : null
+      const callNext = (turnCount >= 1 && entry.callNext) ? entry.callNext : null
       return { message, callNext }
     }
   }
