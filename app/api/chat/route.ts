@@ -2,6 +2,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 import { CHARACTERS, CharacterType } from '@/lib/characters'
 import { supabase } from '@/lib/supabase'
 
+export const maxDuration = 60
+
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!)
 
 const CALL_MAP: Record<string, CharacterType> = {

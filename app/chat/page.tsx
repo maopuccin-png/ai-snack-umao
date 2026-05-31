@@ -545,6 +545,12 @@ function ChatContent() {
       }
     } catch (e) {
       console.error(e)
+      setMessages(prev => [...prev, {
+        id: `err${Date.now()}`,
+        role: 'assistant',
+        content: 'ごめんなさい、少し混んでいるみたい。もう一度話しかけてみて。',
+        characterId: 'mama',
+      }])
     } finally {
       setLoading(false)
     }
