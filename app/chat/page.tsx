@@ -246,6 +246,8 @@ function ChatContent() {
   const mood = (params.get('mood') || 'unsure') as MoodType
   const drink = DRINKS[mood]
 
+  const sessionId = useRef(crypto.randomUUID())
+
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
@@ -367,7 +369,14 @@ function ChatContent() {
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: apiMessages, characterId, nickname, turnCount: turnRef.current }),
+      body: JSON.stringify({
+        messages: apiMessages,
+        characterId,
+        nickname,
+        mood,
+        turnCount: turnRef.current,
+        sessionId: sessionId.current,
+      }),
     })
     if (!res.ok) throw new Error('API error')
     return res.json()
@@ -389,6 +398,13 @@ function ChatContent() {
 
     const userMsg: Message = { id: `u${Date.now()}`, role: 'user', content: text, characterId: 'mama' }
     let current = addMsg(messages, userMsg)
+
+    // Save user message to DB (fire and forget)
+    fetch('/api/message', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: sessionId.current, nickname, mood, role: 'user', content: text }),
+    }).catch(() => {/* silent */})
 
     try {
       // ── Check if any "away" characters should return ──
@@ -533,6 +549,13 @@ function ChatContent() {
   }
 
   const handleTip = async (amount: number) => {
+    // Save tip to DB (fire and forget)
+    fetch('/api/tip', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: sessionId.current, nickname, amount }),
+    }).catch(() => {/* silent */})
+
     const presentChars = CHAR_ORDER.filter(c => charStatus[c] === 'present') as CharacterType[]
     for (const cid of presentChars) {
       await new Promise(r => setTimeout(r, 300))
