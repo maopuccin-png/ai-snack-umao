@@ -835,7 +835,7 @@ function ChatContent() {
               value={input}
               onChange={e => handleInputChange(e.target.value)}
               onKeyDown={e => {
-                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
+                if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); handleSend() }
               }}
               placeholder="なんか言う… @名前 で指名もできます"
               rows={2}
