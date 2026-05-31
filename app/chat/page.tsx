@@ -590,7 +590,7 @@ function ChatContent() {
             スナック メタバース UMAO
           </h1>
           <p className="text-[10px] text-gray-600 mt-0.5">
-            {presentChars.map(c => CHARACTERS[c].name).join(' · ')} がいます
+            ママのうまおと常連のお客さんがいます。話しかけてみてくださいね！
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -610,7 +610,7 @@ function ChatContent() {
       </header>
 
       {/* ── Character row ── */}
-      <div className="px-4 py-3 flex gap-4 border-b border-gray-900 overflow-x-auto">
+      <div className="px-4 py-3 flex gap-4 border-b border-gray-900 overflow-x-auto sticky top-[52px] z-10 backdrop-blur-md" style={{ background: 'rgba(8,6,18,0.85)' }}>
         {CHAR_ORDER.map(cid => {
           const c = CHARACTERS[cid]
           const status = charStatus[cid]
