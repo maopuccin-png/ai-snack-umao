@@ -525,7 +525,7 @@ function ChatContent() {
       const presentRegulars = CHAR_ORDER.filter(c => c !== 'mama' && charStatus[c] === 'present') as CharacterType[]
       for (const cid of presentRegulars) {
         const joinedAt = joinedAtTurn.current[cid] ?? 0
-        if (turn - joinedAt >= 4 && Math.random() < 0.2) {
+        if (turn - joinedAt >= 4 && Math.random() < 0.05) {
           const awayMsgs = AWAY_MESSAGES[cid]
           if (awayMsgs) {
             await new Promise(r => setTimeout(r, 400))
