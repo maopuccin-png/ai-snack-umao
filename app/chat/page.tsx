@@ -247,6 +247,7 @@ function ChatContent() {
   const drink = DRINKS[mood]
 
   const sessionId = useRef(crypto.randomUUID())
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -392,6 +393,7 @@ function ChatContent() {
     const text = input.trim()
     if (!text || loading) return
     setInput('')
+    if (textareaRef.current) textareaRef.current.value = ''
     setLoading(true)
     turnRef.current++
     const turn = turnRef.current
@@ -829,6 +831,7 @@ function ChatContent() {
               </div>
             )}
             <textarea
+              ref={textareaRef}
               value={input}
               onChange={e => handleInputChange(e.target.value)}
               onKeyDown={e => {
@@ -836,6 +839,7 @@ function ChatContent() {
               }}
               placeholder="なんか言う… @名前 で指名もできます"
               rows={2}
+              autoComplete="off"
               className="w-full bg-[#13111e] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-700 focus:outline-none focus:border-gray-700 resize-none leading-relaxed"
             />
           </div>
