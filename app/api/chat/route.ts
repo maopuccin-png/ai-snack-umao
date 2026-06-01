@@ -1,6 +1,24 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { CHARACTERS, CharacterType } from '@/lib/characters'
 import { supabase } from '@/lib/supabase'
+import fs from 'fs'
+import path from 'path'
+
+const PROMPT_FILES: Record<CharacterType, string> = {
+  mama:     'mama.md',
+  realist:  'realist.md',
+  accepter: 'accepter.md',
+  observer: 'observer.md',
+}
+
+function loadPrompt(characterId: CharacterType): string {
+  try {
+    const filePath = path.join(process.cwd(), 'prompts', PROMPT_FILES[characterId])
+    return fs.readFileSync(filePath, 'utf-8')
+  } catch {
+    return CHARACTERS[characterId].systemPrompt
+  }
+}
 
 export const maxDuration = 60
 
@@ -42,9 +60,11 @@ export async function POST(req: Request) {
     ? `これまでの会話:\n${conversationText}\n\n${nickname ?? 'お客さん'}: ${lastUserMsg}`
     : `${nickname ?? 'お客さん'}: ${lastUserMsg}`
 
+  const systemPrompt = loadPrompt(characterId as CharacterType)
+
   const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-flash',
-    systemInstruction: `${character.systemPrompt}\n\nユーザーの名前は「${nickname ?? 'お客さん'}」です。`,
+    model: 'gemini-2.5-flash-lite',
+    systemInstruction: `${systemPrompt}\n\nユーザーの名前は「${nickname ?? 'お客さん'}」です。`,
   })
 
   const result = await model.generateContent(prompt)
