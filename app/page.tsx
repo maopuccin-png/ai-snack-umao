@@ -50,7 +50,7 @@ export default function EntryPage() {
             <p>うまく話せなくても大丈夫。<br />気軽に話してみませんか？</p>
           </div>
 
-          <p className="text-[11px] text-gray-600 leading-relaxed">
+          <p className="text-[12px] text-gray-500 leading-relaxed tracking-wide">
             チャージなし・セット料金なし
             <br />
             飲み物は自由（ノンアルOK）
