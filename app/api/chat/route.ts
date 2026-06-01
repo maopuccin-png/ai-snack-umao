@@ -47,13 +47,19 @@ export async function POST(req: Request) {
     return Response.json({ error: 'Invalid character' }, { status: 400 })
   }
 
-  const allMsgs = messages as { role: string; content: string }[]
+  const allMsgs = messages as { role: string; content: string; characterId?: string }[]
   const lastUserMsg = allMsgs.filter(m => m.role === 'user').at(-1)?.content ?? ''
 
   // Build conversation context as text to avoid Gemini's strict alternating turn requirement
   const conversationText = allMsgs
     .slice(0, -1)
-    .map(m => (m.role === 'user' ? `${nickname ?? 'お客さん'}: ${m.content}` : `${character.name}: ${m.content}`))
+    .map(m => {
+      if (m.role === 'user') return `${nickname ?? 'お客さん'}: ${m.content}`
+      const speakerName = m.characterId && CHARACTERS[m.characterId as CharacterType]
+        ? CHARACTERS[m.characterId as CharacterType].name
+        : character.name
+      return `${speakerName}: ${m.content}`
+    })
     .join('\n')
 
   const prompt = conversationText

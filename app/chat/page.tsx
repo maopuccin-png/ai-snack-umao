@@ -366,7 +366,7 @@ function ChatContent() {
 
   const callAPI = async (msgs: Message[], characterId: CharacterType) => {
     const apiMessages = msgs.filter(m => !m.isJoining && !m.isDrink && !m.isAway && !m.isReturn)
-      .map(m => ({ role: m.role, content: m.content }))
+      .map(m => ({ role: m.role, content: m.content, characterId: m.characterId }))
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
