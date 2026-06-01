@@ -3,11 +3,27 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { MOODS, MoodType } from '@/lib/characters'
 
+const MAMA_MESSAGES = [
+  'よく来てくれたわね。今夜はゆっくりしていってね。',
+  '今日はどんな一日だったかしら？',
+  '急がなくていいのよ。ここではゆっくりでいいから。',
+  'カウンター、あなたの席が空いてるわよ。',
+  'たまにはこういう場所で、ぼーっとするのもいいのよ。',
+  'お疲れ様ね。今夜は何か話してみない？',
+  '遠慮しないでね。ここはそういう場所だから。',
+  'うまく言えなくても大丈夫よ。なんとなくでいいのよ。',
+  '今夜は、どんな話を聞かせてくれるの？',
+  'どんな気分でも、来てくれてよかったわ。',
+  'いつでもいいのよ。ここはいつでも開いてるから。',
+  'ちょっとだけ、話していかない？',
+]
+
 export default function EntryPage() {
   const router = useRouter()
   const [nickname, setNickname] = useState('')
   const [mood, setMood] = useState<MoodType | null>(null)
   const [entering, setEntering] = useState(false)
+  const [mamaMessage] = useState(() => MAMA_MESSAGES[Math.floor(Math.random() * MAMA_MESSAGES.length)])
 
   const canEnter = nickname.trim().length > 0 && mood !== null
 
@@ -44,10 +60,19 @@ export default function EntryPage() {
 
           <div className="text-[13px] leading-[1.9] text-gray-400 tracking-wide text-left mb-6 space-y-4">
             <p>答えが欲しい日もある。<br />ただ聞いてほしい日もある。</p>
-            <p>人には話しづらいことも、<br />まだ言葉になっていないことも。</p>
-            <p>ここは、AIのママのうまおと<br />常連たちが集うカウンター。</p>
-            <p>肩の力を抜いて、<br />安心してお話しください。</p>
-            <p>うまく話せなくても大丈夫。<br />気軽に話してみませんか？</p>
+            <p>ここは、AIのママと常連たちが集うカウンター。</p>
+            <p>雑談でも、人生相談でも、<br />なんとなく立ち寄るだけでも大丈夫。</p>
+            <p>うまく話せなくても大丈夫。</p>
+          </div>
+
+          {/* ママからの一言 */}
+          <div className="w-full mb-5 border border-amber-900/40 rounded-lg px-4 py-3 text-left bg-amber-950/10">
+            <div className="text-[10px] tracking-[0.3em] text-amber-600 opacity-80 mb-2">
+              本日のママからの一言
+            </div>
+            <p className="text-[13px] text-amber-200/75 leading-relaxed">
+              「{mamaMessage}」
+            </p>
           </div>
 
           <p className="text-[12px] text-gray-500 leading-relaxed tracking-wide">
