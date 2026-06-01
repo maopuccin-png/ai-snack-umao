@@ -34,13 +34,22 @@ export default function EntryPage() {
         <div className="text-center select-none">
           <div className="text-[10px] tracking-[0.4em] text-amber-600 mb-2 opacity-80">OPEN</div>
           <h1
-            className="text-3xl font-bold text-white mb-2"
+            className="text-3xl font-bold text-white mb-6"
             style={{ fontFamily: 'Georgia, serif', letterSpacing: '0.05em' }}
           >
             スナック メタバース
             <br />
             UMAO
           </h1>
+
+          <div className="text-[13px] leading-[1.9] text-gray-400 tracking-wide text-left mb-6 space-y-4">
+            <p>答えが欲しい日もある。<br />ただ聞いてほしい日もある。</p>
+            <p>人には話しづらいことも、<br />まだ言葉になっていないことも。</p>
+            <p>ここは、AIのママのうまおと<br />常連たちが集うカウンター。</p>
+            <p>肩の力を抜いて、<br />安心してお話しください。</p>
+            <p>うまく話せなくても大丈夫。<br />気軽に話してみませんか？</p>
+          </div>
+
           <p className="text-[11px] text-gray-600 leading-relaxed">
             チャージなし・セット料金なし
             <br />
