@@ -935,13 +935,21 @@ function ChatContent() {
             話しかける
           </button>
         </div>
-        {/* Row 2: 投げ銭ボタン */}
-        <button
-          onClick={() => setShowTip(true)}
-          className="mt-2 w-full py-2 rounded-xl border border-amber-900/40 text-amber-700 hover:text-amber-500 hover:border-amber-700 transition-colors text-xs font-medium"
-        >
-          🪙 スナックへ投げ銭する
-        </button>
+        {/* Row 2: 投げ銭・退店ボタン */}
+        <div className="mt-2 flex gap-2">
+          <button
+            onClick={() => setShowTip(true)}
+            className="flex-1 py-2 rounded-xl border border-amber-900/40 text-amber-700 hover:text-amber-500 hover:border-amber-700 transition-colors text-xs font-medium"
+          >
+            🪙 投げ銭する
+          </button>
+          <button
+            onClick={() => setShowExit(true)}
+            className="flex-1 py-2 rounded-xl border border-gray-800 text-gray-600 hover:text-gray-400 hover:border-gray-700 transition-colors text-xs font-medium"
+          >
+            退店する
+          </button>
+        </div>
         <p className="text-[10px] text-gray-800 mt-1.5 text-right">Shift+Enter で改行</p>
       </div>
 
