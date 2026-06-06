@@ -259,18 +259,22 @@ function ExitModal({
         {/* Step 2: アンケート */}
         {step === 'survey' && (
           <>
-            <p className="text-white text-sm font-medium leading-relaxed mb-1">
-              AIママはあなたの話を<br />理解してくれたと思いますか？
-            </p>
-            <p className="text-gray-600 text-[11px] mb-6">1＝まったく思わない　5＝すごくそう思う</p>
-            <div className="flex justify-between gap-2 mb-6">
-              {[1, 2, 3, 4, 5].map(n => (
+            <p className="text-white text-sm font-medium mb-1">今日はどうだった？</p>
+            <p className="text-gray-600 text-[11px] mb-5">少し近いものを選んでね</p>
+            <div className="space-y-2 mb-5">
+              {([
+                { label: 'うんうん、わかってもらえた', rating: 5 },
+                { label: 'わりと話せた', rating: 4 },
+                { label: 'まあまあかな', rating: 3 },
+                { label: 'ちょっと伝わらなかったかも', rating: 2 },
+                { label: '今日は噛み合わなかったなあ', rating: 1 },
+              ] as { label: string; rating: number }[]).map(({ label, rating }) => (
                 <button
-                  key={n}
-                  onClick={() => submitRating(n)}
-                  className="flex-1 aspect-square rounded-full border border-gray-700 text-gray-400 text-sm font-bold hover:border-amber-600 hover:text-amber-400 hover:bg-amber-950/20 transition-all active:scale-95"
+                  key={rating}
+                  onClick={() => submitRating(rating)}
+                  className="w-full text-left px-4 py-3 rounded-xl border border-gray-800 text-gray-400 text-sm hover:border-amber-700/60 hover:text-amber-300 hover:bg-amber-950/10 transition-all active:scale-[0.98]"
                 >
-                  {n}
+                  {label}
                 </button>
               ))}
             </div>
