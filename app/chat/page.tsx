@@ -6,9 +6,19 @@ import {
   CharacterType, MoodType,
 } from '@/lib/characters'
 import {
-  DRINKS, AWAY_MESSAGES, RETURN_MESSAGES,
+  AWAY_MESSAGES, RETURN_MESSAGES,
   FAREWELL, TIP_THANKS, GREETINGS, MAMA_CLOSING, getSummary,
 } from '@/lib/mockResponses'
+
+// ─── ドリンク選択肢 ───────────────────────────────────────────────────────
+const DRINK_OPTIONS = [
+  { id: 'moyamoya',   emoji: '🍹', name: 'もやもやソーダ',       response: 'そっかあ。気になってることがある日なんだね。話せるところからでいいよ。' },
+  { id: 'tameiki',    emoji: '☕', name: 'ため息カフェラテ',      response: 'うんうん、おつかれさま。ふぅ、ってしたあとちょっと、ゆるまるといいな。今日はゆっくりしていってね。' },
+  { id: 'hitoyasumi', emoji: '🍵', name: 'ひとやすみ茶',         response: 'うんうん。たまには立ち止まる日も大事。ゆったりしていってね。' },
+  { id: 'lemonade',   emoji: '🍋', name: 'なんとなくレモネード', response: 'ふふっ。そういう日もあるよね。席は空いてるから、のんびりしていってね。' },
+] as const
+
+type DrinkId = typeof DRINK_OPTIONS[number]['id']
 
 // ─── Types ────────────────────────────────────────────────────────────────
 interface Message {
@@ -17,7 +27,7 @@ interface Message {
   content: string
   characterId: CharacterType
   isJoining?: boolean
-  isDrink?: boolean
+  isDrinkSelection?: boolean
   isAway?: boolean
   isReturn?: boolean
   isIntro?: boolean
@@ -187,6 +197,7 @@ function ExitModal({
   turnCount,
   sessionId,
   nickname,
+  entryDrink,
   onConfirm,
   onCancel,
 }: {
@@ -195,6 +206,7 @@ function ExitModal({
   turnCount: number
   sessionId: string
   nickname: string
+  entryDrink: string | null
   onConfirm: () => void
   onCancel: () => void
 }) {
@@ -210,7 +222,7 @@ function ExitModal({
     fetch('/api/survey', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId, nickname, rating }),
+      body: JSON.stringify({ sessionId, nickname, rating, entryDrink }),
     }).catch(() => {/* silent */})
     setStep('thanks')
   }
@@ -321,7 +333,6 @@ function ChatContent() {
   const params = useSearchParams()
   const nickname = params.get('nickname') || 'あなた'
   const mood = (params.get('mood') || 'unsure') as MoodType
-  const drink = DRINKS[mood]
 
   const sessionId = useRef(crypto.randomUUID())
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -329,6 +340,7 @@ function ChatContent() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [selectedDrink, setSelectedDrink] = useState<DrinkId | null>(null)
   const [mentionCandidates, setMentionCandidates] = useState<typeof MENTION_NAMES>([])
 
   // @入力を検知してオートコンプリート候補を更新
@@ -418,12 +430,12 @@ function ChatContent() {
       content: MOOD_OPENERS[mood],
       characterId: 'mama',
     }
-    const drinkMsg: Message = {
+    const drinkSelectionMsg: Message = {
       id: 'drink',
       role: 'assistant',
-      content: `今日の一杯、どうぞ。`,
+      content: 'まずは今日の一杯、選んでみる？',
       characterId: 'mama',
-      isDrink: true,
+      isDrinkSelection: true,
     }
     const introMsg: Message = {
       id: 'intro',
@@ -432,17 +444,32 @@ function ChatContent() {
       characterId: 'mama',
       isIntro: true,
     }
-    const followMsg: Message = {
-      id: 'follow',
-      role: 'assistant',
-      content: '今日はどうしたの？',
-      characterId: 'mama',
-    }
-    setMessages([openMsg, drinkMsg, introMsg, followMsg])
+    setMessages([openMsg, drinkSelectionMsg, introMsg])
   }, [mood])
 
+  // ドリンク選択ハンドラ
+  const handleDrinkSelect = (drinkId: DrinkId) => {
+    setSelectedDrink(drinkId)
+    const option = DRINK_OPTIONS.find(d => d.id === drinkId)!
+    setMessages(prev => [
+      ...prev,
+      {
+        id: `dr${Date.now()}`,
+        role: 'assistant',
+        content: option.response,
+        characterId: 'mama',
+      },
+      {
+        id: 'follow',
+        role: 'assistant',
+        content: '今日はどうしたの？',
+        characterId: 'mama',
+      },
+    ])
+  }
+
   const callAPI = async (msgs: Message[], characterId: CharacterType) => {
-    const apiMessages = msgs.filter(m => !m.isJoining && !m.isDrink && !m.isAway && !m.isReturn)
+    const apiMessages = msgs.filter(m => !m.isJoining && !m.isDrinkSelection && !m.isAway && !m.isReturn)
       .map(m => ({ role: m.role, content: m.content, characterId: m.characterId }))
     const res = await fetch('/api/chat', {
       method: 'POST',
@@ -751,8 +778,9 @@ function ChatContent() {
             )
           }
 
-          // Drink card
-          if (msg.isDrink) {
+          // Drink selection card
+          if (msg.isDrinkSelection) {
+            const chosen = DRINK_OPTIONS.find(d => d.id === selectedDrink)
             return (
               <div key={msg.id} className="flex gap-3">
                 <div
@@ -761,23 +789,33 @@ function ChatContent() {
                 >
                   {char.emoji}
                 </div>
-                <div className="max-w-[78%]">
+                <div className="max-w-[85%]">
                   <p className="text-[10px] mb-1 font-medium" style={{ color: char.color }}>{char.title}</p>
                   <div
-                    className="rounded-2xl rounded-tl-sm px-4 py-3 text-sm leading-relaxed text-gray-300 border"
+                    className="rounded-2xl rounded-tl-sm px-4 py-3 text-sm leading-relaxed text-gray-300 border mb-2"
                     style={{ backgroundColor: char.bgColor, borderColor: `${char.color}22` }}
                   >
                     {msg.content}
                   </div>
-                  <div className="mt-2 border border-amber-900/40 rounded-xl p-3 bg-amber-950/10">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">{drink.emoji}</span>
-                      <div>
-                        <p className="text-amber-300 text-xs font-medium">今日の一杯：{drink.name}</p>
-                        <p className="text-gray-600 text-[10px]">{drink.description}</p>
-                      </div>
+                  {chosen ? (
+                    <div className="border border-amber-900/40 rounded-xl px-4 py-2.5 bg-amber-950/10 flex items-center gap-2">
+                      <span className="text-xl">{chosen.emoji}</span>
+                      <p className="text-amber-300 text-xs font-medium">{chosen.name}</p>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2">
+                      {DRINK_OPTIONS.map(d => (
+                        <button
+                          key={d.id}
+                          onClick={() => handleDrinkSelect(d.id)}
+                          className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-800 bg-[#13111e] hover:border-amber-700/60 hover:bg-amber-950/10 transition-all active:scale-95 text-left"
+                        >
+                          <span className="text-lg">{d.emoji}</span>
+                          <span className="text-xs text-gray-400 leading-tight">{d.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )
@@ -968,6 +1006,7 @@ function ChatContent() {
           turnCount={turnRef.current}
           sessionId={sessionId.current}
           nickname={nickname}
+          entryDrink={selectedDrink}
           onConfirm={() => router.push('/')}
           onCancel={() => setShowExit(false)}
         />
