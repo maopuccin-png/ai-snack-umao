@@ -7,7 +7,7 @@ import {
 } from '@/lib/characters'
 import {
   DRINKS, AWAY_MESSAGES, RETURN_MESSAGES,
-  FAREWELL, TIP_THANKS, GREETINGS, getSummary,
+  FAREWELL, TIP_THANKS, GREETINGS, MAMA_CLOSING, getSummary,
 } from '@/lib/mockResponses'
 
 // ─── Types ────────────────────────────────────────────────────────────────
@@ -185,54 +185,127 @@ function ExitModal({
   presentChars,
   userMessages,
   turnCount,
+  sessionId,
+  nickname,
   onConfirm,
   onCancel,
 }: {
   presentChars: CharacterType[]
   userMessages: string[]
   turnCount: number
+  sessionId: string
+  nickname: string
   onConfirm: () => void
   onCancel: () => void
 }) {
+  type Step = 'confirm' | 'survey' | 'thanks'
+  const [step, setStep] = useState<Step>('confirm')
+  const [closingWord] = useState(() => pick(MAMA_CLOSING))
   const summary = getSummary(userMessages)
   const farewells = useRef(
     presentChars.map(cid => ({ cid, msg: pick(FAREWELL[cid]) }))
   )
 
+  const submitRating = (rating: number) => {
+    fetch('/api/survey', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, nickname, rating }),
+    }).catch(() => {/* silent */})
+    setStep('thanks')
+  }
+
   return (
     <div className="fixed inset-0 bg-black/75 z-50 flex items-end sm:items-center justify-center p-4">
       <div className="bg-[#1a1030] border border-gray-800 rounded-2xl w-full max-w-sm p-6">
-        <h2 className="text-white font-bold mb-1">もう帰る？</h2>
-        <p className="text-gray-600 text-xs mb-5">
-          今日は{summary}について話しました（{turnCount}回のやりとり）
-        </p>
-        <div className="space-y-4 mb-6">
-          {farewells.current.map(({ cid, msg }) => {
-            const c = CHARACTERS[cid]
-            return (
-              <div key={cid} className="flex gap-3 items-start">
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 border"
-                  style={{ borderColor: c.color, backgroundColor: c.bgColor }}
+
+        {/* Step 1: 挨拶 + 退店確認 */}
+        {step === 'confirm' && (
+          <>
+            <h2 className="text-white font-bold mb-1">もう帰る？</h2>
+            <p className="text-gray-600 text-xs mb-5">
+              今日は{summary}について話しました（{turnCount}回のやりとり）
+            </p>
+            <div className="space-y-4 mb-6">
+              {farewells.current.map(({ cid, msg }) => {
+                const c = CHARACTERS[cid]
+                return (
+                  <div key={cid} className="flex gap-3 items-start">
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 border"
+                      style={{ borderColor: c.color, backgroundColor: c.bgColor }}
+                    >
+                      {c.emoji}
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-medium mb-0.5" style={{ color: c.color }}>{c.title}</p>
+                      <p className="text-gray-300 text-sm leading-relaxed">{msg}</p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            <div className="flex gap-2">
+              <button onClick={onCancel} className="flex-1 py-3 border border-gray-800 text-gray-500 rounded-xl text-sm">
+                もう少し話す
+              </button>
+              <button onClick={() => setStep('survey')} className="flex-1 py-3 bg-amber-700 hover:bg-amber-600 text-white rounded-xl text-sm font-medium">
+                退店する
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Step 2: アンケート */}
+        {step === 'survey' && (
+          <>
+            <p className="text-white text-sm font-medium leading-relaxed mb-1">
+              AIママはあなたの話を<br />理解してくれたと思いますか？
+            </p>
+            <p className="text-gray-600 text-[11px] mb-6">1＝まったく思わない　5＝すごくそう思う</p>
+            <div className="flex justify-between gap-2 mb-6">
+              {[1, 2, 3, 4, 5].map(n => (
+                <button
+                  key={n}
+                  onClick={() => submitRating(n)}
+                  className="flex-1 aspect-square rounded-full border border-gray-700 text-gray-400 text-sm font-bold hover:border-amber-600 hover:text-amber-400 hover:bg-amber-950/20 transition-all active:scale-95"
                 >
-                  {c.emoji}
-                </div>
-                <div>
-                  <p className="text-[10px] font-medium mb-0.5" style={{ color: c.color }}>{c.title}</p>
-                  <p className="text-gray-300 text-sm leading-relaxed">{msg}</p>
-                </div>
+                  {n}
+                </button>
+              ))}
+            </div>
+            <button onClick={() => setStep('thanks')} className="w-full text-[11px] text-gray-700 hover:text-gray-500 transition-colors">
+              回答せずに帰る
+            </button>
+          </>
+        )}
+
+        {/* Step 3: ママの締めの一言 */}
+        {step === 'thanks' && (
+          <>
+            <div className="flex gap-3 items-start mb-6">
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center text-xl flex-shrink-0 border-2"
+                style={{ borderColor: CHARACTERS.mama.color, backgroundColor: CHARACTERS.mama.bgColor }}
+              >
+                {CHARACTERS.mama.emoji}
               </div>
-            )
-          })}
-        </div>
-        <div className="flex gap-2">
-          <button onClick={onCancel} className="flex-1 py-3 border border-gray-800 text-gray-500 rounded-xl text-sm">
-            もう少し話す
-          </button>
-          <button onClick={onConfirm} className="flex-1 py-3 bg-amber-700 hover:bg-amber-600 text-white rounded-xl text-sm font-medium">
-            退店する
-          </button>
-        </div>
+              <div>
+                <p className="text-[10px] font-medium mb-1" style={{ color: CHARACTERS.mama.color }}>
+                  {CHARACTERS.mama.title}
+                </p>
+                <p className="text-gray-200 text-sm leading-relaxed">「{closingWord}」</p>
+              </div>
+            </div>
+            <button
+              onClick={onConfirm}
+              className="w-full py-3 bg-amber-700 hover:bg-amber-600 text-white rounded-xl text-sm font-medium"
+            >
+              帰る
+            </button>
+          </>
+        )}
+
       </div>
     </div>
   )
@@ -881,6 +954,8 @@ function ChatContent() {
           presentChars={presentChars}
           userMessages={userMsgs}
           turnCount={turnRef.current}
+          sessionId={sessionId.current}
+          nickname={nickname}
           onConfirm={() => router.push('/')}
           onCancel={() => setShowExit(false)}
         />
