@@ -462,7 +462,7 @@ function ChatContent() {
       {
         id: 'follow',
         role: 'assistant',
-        content: `${option.emoji} ${option.name}、お待たせしました！今日はどうしたの？`,
+        content: `${option.emoji} ${option.name}、お待たせしました！で、今日はどうしたの？`,
         characterId: 'mama',
       },
     ])
