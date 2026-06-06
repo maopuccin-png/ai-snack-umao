@@ -587,8 +587,8 @@ function ChatContent() {
         const presentSet = new Set(CHAR_ORDER.filter(c => charStatus[c] === 'present') as CharacterType[])
         const absentSet  = new Set(CHAR_ORDER.filter(c => charStatus[c] === 'absent')  as CharacterType[])
 
-        let triggerChar: CharacterType | null = mamaRes.callNext ?? null
-        if (!triggerChar && turn >= 1 && absentSet.size > 0) {
+        let triggerChar: CharacterType | null = (turn >= 3 ? mamaRes.callNext : null) ?? null
+        if (!triggerChar && turn >= 4 && absentSet.size > 0) {
           const allUserText = current.filter(m => m.role === 'user').map(m => m.content).join(' ')
           triggerChar = detectTrigger(allUserText, presentSet)
         }
