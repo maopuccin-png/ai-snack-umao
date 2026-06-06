@@ -444,7 +444,7 @@ function ChatContent() {
       characterId: 'mama',
       isIntro: true,
     }
-    setMessages([openMsg, drinkSelectionMsg, introMsg])
+    setMessages([openMsg, introMsg, drinkSelectionMsg])
   }, [mood])
 
   // ドリンク選択ハンドラ
