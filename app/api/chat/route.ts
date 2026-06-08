@@ -70,12 +70,20 @@ export async function POST(req: Request) {
 
   const model = genAI.getGenerativeModel({
     model: 'gemini-2.5-flash-lite',
-    systemInstruction: `${systemPrompt}\n\nユーザーの名前は「${nickname ?? 'お客さん'}」です。`,
+    systemInstruction: `${systemPrompt}\n\nユーザーの名前は「${nickname ?? 'お客さん'}」です。\n\n【重要】返答の先頭や文中に「うまお:」「オチノリ:」「天使:」「クロちゃん:」などキャラクター名のプレフィックスを絶対に含めないでください。セリフのみを返してください。`,
   })
 
   const result = await model.generateContent(prompt)
   const rawText = result.response.text()
-  const { message, callNext } = parseCallNext(rawText)
+
+  // キャラクター名プレフィックス（「うまお: 」等）が混入した場合に除去
+  const charNames = Object.values(CHARACTERS).map(c => c.name)
+  const cleaned = charNames.reduce(
+    (text, name) => text.replace(new RegExp(`${name}[:：]\\s*`, 'g'), ''),
+    rawText
+  ).trim()
+
+  const { message, callNext } = parseCallNext(cleaned)
 
   // Save to Supabase (fire and forget — don't block the response)
   if (supabase && sessionId) {
