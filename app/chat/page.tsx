@@ -447,6 +447,11 @@ function ChatContent() {
   // ドリンク選択ハンドラ
   const handleDrinkSelect = (drinkId: DrinkId) => {
     setSelectedDrink(drinkId)
+    fetch('/api/checkin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: sessionId.current, nickname, entryDrink: drinkId }),
+    }).catch(() => {/* silent */})
     const option = DRINK_OPTIONS.find(d => d.id === drinkId)!
     setMessages(prev => [
       ...prev,
