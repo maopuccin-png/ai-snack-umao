@@ -234,10 +234,7 @@ function ExitModal({
         {/* Step 1: 挨拶 + 退店確認 */}
         {step === 'confirm' && (
           <>
-            <h2 className="text-white font-bold mb-1">もう帰る？</h2>
-            <p className="text-gray-600 text-xs mb-5">
-              今日は{summary}について話しました（{turnCount}回のやりとり）
-            </p>
+            <h2 className="text-white font-bold mb-5">もう帰る？</h2>
             <div className="space-y-4 mb-6">
               {farewells.current.map(({ cid, msg }) => {
                 const c = CHARACTERS[cid]
