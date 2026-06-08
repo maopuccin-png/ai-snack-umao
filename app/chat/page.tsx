@@ -7,7 +7,7 @@ import {
 } from '@/lib/characters'
 import {
   AWAY_MESSAGES, RETURN_MESSAGES,
-  FAREWELL, TIP_THANKS, GREETINGS, MAMA_CLOSING, getSummary,
+  FAREWELL, TIP_THANKS, GREETINGS, MAMA_CLOSING, MAMA_FAREWELL, getSummary,
 } from '@/lib/mockResponses'
 
 // ─── ドリンク選択肢 ───────────────────────────────────────────────────────
@@ -190,6 +190,28 @@ function TipModal({
   )
 }
 
+// ─── Farewell Step ────────────────────────────────────────────────────────
+function FarewellStep({ farewellWord, onDone }: { farewellWord: string; onDone: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 2800)
+    return () => clearTimeout(t)
+  }, [onDone])
+
+  return (
+    <div className="text-center py-4">
+      <div
+        className="w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 border-2"
+        style={{ borderColor: CHARACTERS.mama.color, backgroundColor: CHARACTERS.mama.bgColor }}
+      >
+        {CHARACTERS.mama.emoji}
+      </div>
+      <p className="text-gray-200 text-sm leading-relaxed animate-pulse">
+        「{farewellWord}」
+      </p>
+    </div>
+  )
+}
+
 // ─── Exit Modal ───────────────────────────────────────────────────────────
 function ExitModal({
   presentChars,
@@ -210,9 +232,10 @@ function ExitModal({
   onConfirm: () => void
   onCancel: () => void
 }) {
-  type Step = 'confirm' | 'survey' | 'thanks'
+  type Step = 'confirm' | 'survey' | 'thanks' | 'farewell'
   const [step, setStep] = useState<Step>('confirm')
   const [closingWord] = useState(() => pick(MAMA_CLOSING))
+  const [farewellWord] = useState(() => pick(MAMA_FAREWELL))
   const summary = getSummary(userMessages)
   const farewells = useRef(
     presentChars.map(cid => ({ cid, msg: pick(FAREWELL[cid]) }))
@@ -311,12 +334,20 @@ function ExitModal({
               </div>
             </div>
             <button
-              onClick={onConfirm}
+              onClick={() => setStep('farewell')}
               className="w-full py-3 bg-amber-700 hover:bg-amber-600 text-white rounded-xl text-sm font-medium"
             >
               帰る
             </button>
           </>
+        )}
+
+        {/* Step 4: お見送り */}
+        {step === 'farewell' && (
+          <FarewellStep
+            farewellWord={farewellWord}
+            onDone={onConfirm}
+          />
         )}
 
       </div>
