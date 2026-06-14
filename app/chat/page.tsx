@@ -232,8 +232,9 @@ function ExitModal({
   onConfirm: () => void
   onCancel: () => void
 }) {
-  type Step = 'confirm' | 'survey' | 'thanks' | 'farewell'
+  type Step = 'confirm' | 'survey' | 'survey2' | 'thanks' | 'farewell'
   const [step, setStep] = useState<Step>('confirm')
+  const [rating, setRating] = useState<number | null>(null)
   const [closingWord] = useState(() => pick(MAMA_CLOSING))
   const [farewellWord] = useState(() => pick(MAMA_FAREWELL))
   const summary = getSummary(userMessages)
@@ -241,11 +242,16 @@ function ExitModal({
     presentChars.map(cid => ({ cid, msg: pick(FAREWELL[cid]) }))
   )
 
-  const submitRating = (rating: number) => {
+  const submitQ1 = (r: number) => {
+    setRating(r)
+    setStep('survey2')
+  }
+
+  const submitQ2 = (revisit: number) => {
     fetch('/api/survey', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId, nickname, rating, entryDrink }),
+      body: JSON.stringify({ sessionId, nickname, rating, revisit, entryDrink }),
     }).catch(() => {/* silent */})
     setStep('thanks')
   }
@@ -295,15 +301,43 @@ function ExitModal({
             <p className="text-gray-600 text-[11px] mb-5">少し近いものを選んでね</p>
             <div className="space-y-2 mb-5">
               {([
-                { label: 'うんうん、わかってもらえた', rating: 5 },
-                { label: 'わりと話せた', rating: 4 },
-                { label: 'まあまあかな', rating: 3 },
-                { label: 'ちょっと伝わらなかったかも', rating: 2 },
-                { label: '今日は噛み合わなかったなあ', rating: 1 },
-              ] as { label: string; rating: number }[]).map(({ label, rating }) => (
+                { label: 'うんうん、わかってもらえた', value: 5 },
+                { label: 'わりと話せた', value: 4 },
+                { label: 'まあまあかな', value: 3 },
+                { label: 'ちょっと伝わらなかったかも', value: 2 },
+                { label: '今日は噛み合わなかったなあ', value: 1 },
+              ]).map(({ label, value }) => (
                 <button
-                  key={rating}
-                  onClick={() => submitRating(rating)}
+                  key={value}
+                  onClick={() => submitQ1(value)}
+                  className="w-full text-left px-4 py-3 rounded-xl border border-gray-800 text-gray-400 text-sm hover:border-amber-700/60 hover:text-amber-300 hover:bg-amber-950/10 transition-all active:scale-[0.98]"
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <button onClick={() => setStep('thanks')} className="w-full text-[11px] text-gray-700 hover:text-gray-500 transition-colors">
+              回答せずに帰る
+            </button>
+          </>
+        )}
+
+        {/* Step 2b: 再訪意向 */}
+        {step === 'survey2' && (
+          <>
+            <p className="text-white text-sm font-medium mb-1">また気が向いたら、<br />ふらっと寄ってくれそう？</p>
+            <p className="text-gray-600 text-[11px] mb-5">少し近いものを選んでね</p>
+            <div className="space-y-2 mb-5">
+              {([
+                { label: 'うん、また来るね', value: 5 },
+                { label: 'きっと来るね', value: 4 },
+                { label: 'どちらとも言えない', value: 3 },
+                { label: 'たぶん来ないかな', value: 2 },
+                { label: '今日で満足かな', value: 1 },
+              ]).map(({ label, value }) => (
+                <button
+                  key={value}
+                  onClick={() => submitQ2(value)}
                   className="w-full text-left px-4 py-3 rounded-xl border border-gray-800 text-gray-400 text-sm hover:border-amber-700/60 hover:text-amber-300 hover:bg-amber-950/10 transition-all active:scale-[0.98]"
                 >
                   {label}
