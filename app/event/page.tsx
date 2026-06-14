@@ -42,7 +42,7 @@ export default function EventPage() {
             <br />
             UMAO
           </h1>
-          <p className="text-[11px] text-amber-700/80 tracking-widest mb-6">Web3AI概論 修了イベント</p>
+          <p className="text-[11px] text-amber-700/80 tracking-widest mb-6">Web3AI概論 もうすぐ終わっちゃうYO！イベント</p>
 
           {/* お題 */}
           <div className="w-full mb-5 border border-amber-900/40 rounded-lg px-4 py-4 text-left bg-amber-950/10">
