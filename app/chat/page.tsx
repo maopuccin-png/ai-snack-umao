@@ -735,7 +735,7 @@ function ChatContent() {
       {
         id: 'follow',
         role: 'assistant',
-        content: `${option.emoji} ${option.name}、お待たせしました！で、今日はどうしたの？`,
+        content: `${option.emoji} ${option.name}、お待たせしました！で、${event === 'web3ai' ? 'Web3 AI概論はどう？' : '今日はどうしたの？'}`,
         characterId: 'mama',
       },
     ])
