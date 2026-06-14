@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { MOODS, MoodType } from '@/lib/characters'
 
-const TOPIC = 'もうすぐWeb3AI概論が終わっちゃう！今まで一番しんどかったことや、モヤモヤがあったら聞かせて？'
+const TOPIC = 'もうすぐWeb３AI概論が終わっちゃう！今まで一番しんどかったことや、あなたのモヤっとしたこと、よかったら聞かせて？'
 
 export default function EventPage() {
   const router = useRouter()
