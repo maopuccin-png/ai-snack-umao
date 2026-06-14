@@ -713,7 +713,7 @@ function ChatContent() {
       isIntro: true,
     }
     setMessages([openMsg, introMsg, drinkSelectionMsg])
-  }, [mood])
+  }, [mood, event])
 
   // ドリンク選択ハンドラ
   const handleDrinkSelect = (drinkId: DrinkId) => {
@@ -724,20 +724,21 @@ function ChatContent() {
       body: JSON.stringify({ sessionId: sessionId.current, nickname, entryDrink: drinkId }),
     }).catch(() => {/* silent */})
     const option = DRINK_OPTIONS.find(d => d.id === drinkId)!
+    const followMsg: Message = {
+      id: 'follow',
+      role: 'assistant',
+      content: `${option.emoji} ${option.name}、お待たせしました！で、${event === 'web3ai' ? 'Web3 AI概論はどう？' : '今日はどうしたの？'}`,
+      characterId: 'mama',
+    }
     setMessages(prev => [
       ...prev,
-      {
+      ...(event === 'web3ai' ? [] : [{
         id: `dr${Date.now()}`,
-        role: 'assistant',
+        role: 'assistant' as const,
         content: option.response,
-        characterId: 'mama',
-      },
-      {
-        id: 'follow',
-        role: 'assistant',
-        content: `${option.emoji} ${option.name}、お待たせしました！で、${event === 'web3ai' ? 'Web3 AI概論はどう？' : '今日はどうしたの？'}`,
-        characterId: 'mama',
-      },
+        characterId: 'mama' as CharacterType,
+      }]),
+      followMsg,
     ])
   }
 
