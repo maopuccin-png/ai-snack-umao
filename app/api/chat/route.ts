@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import Groq from 'groq-sdk'
 import { CHARACTERS, CharacterType } from '@/lib/characters'
 import { supabase } from '@/lib/supabase'
 import fs from 'fs'
@@ -23,6 +24,20 @@ function loadPrompt(characterId: CharacterType): string {
 export const maxDuration = 60
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!)
+const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null
+
+async function generateWithGroq(systemPrompt: string, prompt: string): Promise<string> {
+  if (!groq) throw new Error('Groq not configured')
+  const completion = await groq.chat.completions.create({
+    model: 'llama-3.3-70b-versatile',
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: prompt },
+    ],
+    max_tokens: 300,
+  })
+  return completion.choices[0]?.message?.content ?? ''
+}
 
 function getDateContext(): string {
   const now = new Date()
@@ -113,13 +128,27 @@ export async function POST(req: Request) {
 
   fullSystemPrompt += `\n\nユーザーの名前は「${nickname ?? 'お客さん'}」です。\n\n【重要】返答の先頭や文中に「うまお:」「オチノリ:」「天使:」「クロちゃん:」などキャラクター名のプレフィックスを絶対に含めないでください。セリフのみを返してください。`
 
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-flash-lite',
-    systemInstruction: fullSystemPrompt,
-  })
-
-  const result = await model.generateContent(prompt)
-  const rawText = result.response.text()
+  let rawText: string
+  try {
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash-lite',
+      systemInstruction: fullSystemPrompt,
+    })
+    const result = await model.generateContent(prompt)
+    rawText = result.response.text()
+  } catch (err: unknown) {
+    const isQuotaError = err instanceof Error && (
+      err.message.includes('429') ||
+      err.message.includes('quota') ||
+      err.message.includes('RESOURCE_EXHAUSTED')
+    )
+    if (isQuotaError && groq) {
+      console.warn('Gemini quota exceeded, falling back to Groq')
+      rawText = await generateWithGroq(fullSystemPrompt, prompt)
+    } else {
+      throw err
+    }
+  }
 
   // キャラクター名プレフィックス（「うまお: 」等）が混入した場合に除去
   const charNames = Object.values(CHARACTERS).map(c => c.name)
