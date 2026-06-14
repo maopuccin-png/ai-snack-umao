@@ -695,7 +695,7 @@ function ChatContent() {
     const openMsg: Message = {
       id: 'open',
       role: 'assistant',
-      content: MOOD_OPENERS[mood],
+      content: event === 'web3ai' ? 'いらっしゃい〜。会いたかったわ！講義、おつかれさま。' : MOOD_OPENERS[mood],
       characterId: 'mama',
     }
     const drinkSelectionMsg: Message = {
