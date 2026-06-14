@@ -3,27 +3,44 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { MOODS, MoodType } from '@/lib/characters'
 
-const MAMA_MESSAGES = [
-  'よく来てくれたわね。今夜はゆっくりしていってね。',
-  '今日はどんな一日だったかしら？',
-  '急がなくていいのよ。ここではゆっくりでいいから。',
-  'カウンター、あなたの席が空いてるわよ。',
-  'たまにはこういう場所で、ぼーっとするのもいいのよ。',
-  'お疲れ様ね。今夜は何か話してみない？',
-  '遠慮しないでね。ここはそういう場所だから。',
-  'うまく言えなくても大丈夫よ。なんとなくでいいのよ。',
-  '今夜は、どんな話を聞かせてくれるの？',
-  'どんな気分でも、来てくれてよかったわ。',
-  'いつでもいいのよ。ここはいつでも開いてるから。',
-  'ちょっとだけ、話していかない？',
-]
+function getDailyMamaMessage(): string {
+  const now = new Date()
+  const day = now.getDay()
+  const month = now.getMonth() + 1
+
+  const season =
+    month >= 3 && month <= 5 ? 'spring' :
+    month >= 6 && month <= 8 ? 'summer' :
+    month >= 9 && month <= 11 ? 'autumn' : 'winter'
+
+  const BY_DAY: Record<number, string[]> = {
+    0: ['日曜日ね。今日はゆっくりできた？', '週末最後の夜、どんな気分かしら。', '日曜の夜って、ちょっとしんみりするわよね。'],
+    1: ['月曜日ね。今週もよろしくね。', '月曜、お疲れさまね。一番きつい日よね。', '週の始まり、来てくれてよかった。'],
+    2: ['火曜日か。もう少しで折り返しよ。', '今週まだ始まったばかりよ。焦らないでね。', '火曜の夜にふらっと来てくれたのね。'],
+    3: ['水曜日ね。週の真ん中、お疲れさまね。', 'ここまで来たら、あとは下り坂よ。', '折り返し地点ね。よく頑張ってるわ。'],
+    4: ['木曜日ね。あと一日、乗り越えられそう？', '週末がもうすぐよ。もう少しだけ。', '木曜の夜に来てくれたのね。うれしいわ。'],
+    5: ['金曜日！よく頑張ったわね、今週も。', '花金ね。今日くらいゆっくりしていいのよ。', '週末が始まったわ。今日はどんな一週間だった？'],
+    6: ['土曜日ね。今日はゆっくりできそう？', '週末よ。今日くらい自分のために使っていいのよ。', '土曜の夜、ふらっと来てくれたのね。'],
+  }
+
+  const BY_SEASON: Record<string, string[]> = {
+    spring: ['春ね。なんか変わりそうな予感、ある？', '桜の季節ね。心もすこし揺れる季節よ。'],
+    summer: ['夏ね。暑い中、よく来てくれたわ。', 'この暑さ、体は大丈夫？'],
+    autumn: ['秋の夜長ね。ゆっくりしていって。', '秋ね。なんとなく感傷的になる季節よ。'],
+    winter: ['冬ね。寒い中、来てくれてありがとう。', '冬の夜って長いわよね。温かくしてね。'],
+  }
+
+  const pool = [...(BY_DAY[day] ?? []), ...BY_SEASON[season]]
+  const seed = now.getFullYear() * 10000 + month * 100 + now.getDate()
+  return pool[seed % pool.length]
+}
 
 export default function EntryPage() {
   const router = useRouter()
   const [nickname, setNickname] = useState('')
   const [mood, setMood] = useState<MoodType | null>(null)
   const [entering, setEntering] = useState(false)
-  const [mamaMessage] = useState(() => MAMA_MESSAGES[Math.floor(Math.random() * MAMA_MESSAGES.length)])
+  const [mamaMessage] = useState(() => getDailyMamaMessage())
 
   const canEnter = nickname.trim().length > 0 && mood !== null
 

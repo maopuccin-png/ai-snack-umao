@@ -24,6 +24,31 @@ export const maxDuration = 60
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!)
 
+function getDateContext(): string {
+  const now = new Date()
+  const days = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日']
+  const month = now.getMonth() + 1
+  const season =
+    month >= 3 && month <= 5 ? '春' :
+    month >= 6 && month <= 8 ? '夏' :
+    month >= 9 && month <= 11 ? '秋' : '冬'
+  return `今日は${days[now.getDay()]}、季節は${season}です。`
+}
+
+const MOOD_LABELS: Record<string, string> = {
+  listen:   'ただ聞いてほしかった',
+  organize: '頭を整理したかった',
+  advice:   'アドバイスが欲しかった',
+  unsure:   'なんとなくモヤッていた',
+}
+
+const DRINK_LABELS: Record<string, string> = {
+  moyamoya:    'もやもやソーダ',
+  tameiki:     'ため息カフェラテ',
+  hitoyasumi:  'ひとやすみ茶',
+  lemonade:    'なんとなくレモネード',
+}
+
 const CALL_MAP: Record<string, CharacterType> = {
   'リュウ': 'realist',
   'さくら': 'accepter',
@@ -40,7 +65,7 @@ function parseCallNext(text: string): { message: string; callNext: CharacterType
 }
 
 export async function POST(req: Request) {
-  const { messages, characterId, nickname, turnCount, sessionId, mood } = await req.json()
+  const { messages, characterId, nickname, turnCount, sessionId, mood, prevContext, event } = await req.json()
 
   const character = CHARACTERS[characterId as CharacterType]
   if (!character) {
@@ -67,10 +92,30 @@ export async function POST(req: Request) {
     : `${nickname ?? 'お客さん'}: ${lastUserMsg}`
 
   const systemPrompt = loadPrompt(characterId as CharacterType)
+  const dateCtx = getDateContext()
+
+  let fullSystemPrompt = `${systemPrompt}\n\n${dateCtx}`
+
+  if (characterId === 'mama' && prevContext) {
+    const daysAgo = Math.round((Date.now() - new Date(prevContext.created_at).getTime()) / 86400000)
+    let prevStr = '\n\n【前回の来訪情報】\n'
+    prevStr += daysAgo === 0 ? '今日も来てくれたのね。' : `${daysAgo}日前に来店してくれていたわ。`
+    if (prevContext.topics) prevStr += `話していた内容は「${prevContext.topics}」よ。`
+    if (prevContext.mood) prevStr += `その時の気分は「${MOOD_LABELS[prevContext.mood] ?? prevContext.mood}」だったわ。`
+    if (prevContext.entry_drink) prevStr += `選んだドリンクは「${DRINK_LABELS[prevContext.entry_drink] ?? prevContext.entry_drink}」よ。`
+    prevStr += '\n自然なタイミングで「この前どうなったのかしら？」などと一言添えてもいいわよ。まずは今日来てくれた気持ちを受け止めることを優先してね。'
+    fullSystemPrompt += prevStr
+  }
+
+  if (characterId === 'mama' && event === 'web3ai') {
+    fullSystemPrompt += '\n\n【イベント情報】\n今夜は「Web3AI概論」の修了イベントとして受講生が集まっています。\n今夜のお題：「もうすぐWeb3AI概論が終わっちゃう！今まで一番しんどかったことや、モヤモヤがあったら聞かせて？」\nお題をふまえて、授業や学習についての感想・モヤモヤを自然に引き出してあげてね。ただし無理に誘導せず、お客さんが話したいことから始めていいのよ。'
+  }
+
+  fullSystemPrompt += `\n\nユーザーの名前は「${nickname ?? 'お客さん'}」です。\n\n【重要】返答の先頭や文中に「うまお:」「オチノリ:」「天使:」「クロちゃん:」などキャラクター名のプレフィックスを絶対に含めないでください。セリフのみを返してください。`
 
   const model = genAI.getGenerativeModel({
     model: 'gemini-2.5-flash-lite',
-    systemInstruction: `${systemPrompt}\n\nユーザーの名前は「${nickname ?? 'お客さん'}」です。\n\n【重要】返答の先頭や文中に「うまお:」「オチノリ:」「天使:」「クロちゃん:」などキャラクター名のプレフィックスを絶対に含めないでください。セリフのみを返してください。`,
+    systemInstruction: fullSystemPrompt,
   })
 
   const result = await model.generateContent(prompt)

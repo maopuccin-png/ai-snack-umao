@@ -212,6 +212,176 @@ function FarewellStep({ farewellWord, onDone }: { farewellWord: string; onDone: 
   )
 }
 
+// ─── Event Exit Modal ─────────────────────────────────────────────────────
+function EventExitModal({
+  presentChars,
+  userMessages,
+  sessionId,
+  nickname,
+  userId,
+  mood,
+  entryDrink,
+  onConfirm,
+  onCancel,
+}: {
+  presentChars: CharacterType[]
+  userMessages: string[]
+  sessionId: string
+  nickname: string
+  userId: string
+  mood: string
+  entryDrink: string | null
+  onConfirm: () => void
+  onCancel: () => void
+}) {
+  type Step = 'confirm' | 'survey' | 'survey2' | 'thanks' | 'farewell'
+  const [step, setStep] = useState<Step>('confirm')
+  const [rating, setRating] = useState<number | null>(null)
+  const [courseGood, setCourseGood] = useState<number | null>(null)
+  const [impression, setImpression] = useState('')
+  const [closingWord] = useState(() => pick(MAMA_CLOSING))
+  const [farewellWord] = useState(() => pick(MAMA_FAREWELL))
+  const farewells = useRef(presentChars.map(cid => ({ cid, msg: pick(FAREWELL[cid]) })))
+
+  const submitQ1 = (r: number) => { setRating(r); setStep('survey2') }
+
+  const submitQ2 = () => {
+    fetch('/api/event-survey', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, nickname, rating, courseGood, impression: impression || null }),
+    }).catch(() => {})
+    setStep('thanks')
+  }
+
+  const goFarewell = () => {
+    if (userId) {
+      fetch('/api/session-end', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, sessionId, topics: getSummary(userMessages), mood, entryDrink }),
+      }).catch(() => {})
+    }
+    setStep('farewell')
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/75 z-50 flex items-end sm:items-center justify-center p-4">
+      <div className="bg-[#1a1030] border border-gray-800 rounded-2xl w-full max-w-sm p-6">
+
+        {step === 'confirm' && (
+          <>
+            <h2 className="text-white font-bold mb-5">もう帰る？</h2>
+            <div className="space-y-4 mb-6">
+              {farewells.current.map(({ cid, msg }) => {
+                const c = CHARACTERS[cid]
+                return (
+                  <div key={cid} className="flex gap-3 items-start">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 border" style={{ borderColor: c.color, backgroundColor: c.bgColor }}>{c.emoji}</div>
+                    <div>
+                      <p className="text-[10px] font-medium mb-0.5" style={{ color: c.color }}>{c.title}</p>
+                      <p className="text-gray-300 text-sm leading-relaxed">{msg}</p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            <div className="flex gap-2">
+              <button onClick={onCancel} className="flex-1 py-3 border border-gray-800 text-gray-500 rounded-xl text-sm">もう少し話す</button>
+              <button onClick={() => setStep('survey')} className="flex-1 py-3 bg-amber-700 hover:bg-amber-600 text-white rounded-xl text-sm font-medium">退店する</button>
+            </div>
+          </>
+        )}
+
+        {step === 'survey' && (
+          <>
+            <p className="text-white text-sm font-medium mb-1">今日はどうだった？</p>
+            <p className="text-gray-600 text-[11px] mb-5">少し近いものを選んでね</p>
+            <div className="space-y-2 mb-5">
+              {([
+                { label: 'うんうん、わかってもらえた', value: 5 },
+                { label: 'わりと話せた', value: 4 },
+                { label: 'まあまあかな', value: 3 },
+                { label: 'ちょっと伝わらなかったかも', value: 2 },
+                { label: '今日は噛み合わなかったなあ', value: 1 },
+              ]).map(({ label, value }) => (
+                <button key={value} onClick={() => submitQ1(value)}
+                  className="w-full text-left px-4 py-3 rounded-xl border border-gray-800 text-gray-400 text-sm hover:border-amber-700/60 hover:text-amber-300 hover:bg-amber-950/10 transition-all active:scale-[0.98]">
+                  {label}
+                </button>
+              ))}
+            </div>
+            <button onClick={() => setStep('survey2')} className="w-full text-[11px] text-gray-700 hover:text-gray-500 transition-colors">
+              回答せずに進む
+            </button>
+          </>
+        )}
+
+        {step === 'survey2' && (
+          <>
+            <p className="text-white text-sm font-medium mb-5">Web3AI概論について聞かせて</p>
+            <p className="text-gray-500 text-[11px] mb-2">受けてよかった？</p>
+            <div className="space-y-2 mb-5">
+              {([
+                { label: '受けてよかった！', value: 5 },
+                { label: 'だいたいよかった', value: 4 },
+                { label: 'どちらとも言えない', value: 3 },
+                { label: 'う〜ん、正直微妙', value: 2 },
+                { label: 'ちょっと後悔かも', value: 1 },
+              ]).map(({ label, value }) => (
+                <button
+                  key={value}
+                  onClick={() => setCourseGood(value)}
+                  className={`w-full text-left px-4 py-3 rounded-xl border text-sm transition-all active:scale-[0.98] ${
+                    courseGood === value
+                      ? 'border-amber-700/60 text-amber-300 bg-amber-950/10'
+                      : 'border-gray-800 text-gray-400 hover:border-amber-700/60 hover:text-amber-300 hover:bg-amber-950/10'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <p className="text-gray-500 text-[11px] mb-2">一番印象に残ったことは？（任意）</p>
+            <textarea
+              value={impression}
+              onChange={e => setImpression(e.target.value)}
+              placeholder="なんとなくでいいよ。"
+              rows={3}
+              className="w-full bg-[#13111e] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-700 focus:outline-none focus:border-gray-700 resize-none leading-relaxed mb-4"
+            />
+            <button onClick={submitQ2} className="w-full py-3 bg-amber-700 hover:bg-amber-600 text-white rounded-xl text-sm font-medium mb-2">
+              送る
+            </button>
+            <button onClick={() => setStep('thanks')} className="w-full text-[11px] text-gray-700 hover:text-gray-500 transition-colors">
+              回答せずに帰る
+            </button>
+          </>
+        )}
+
+        {step === 'thanks' && (
+          <>
+            <div className="flex gap-3 items-start mb-6">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center text-xl flex-shrink-0 border-2" style={{ borderColor: CHARACTERS.mama.color, backgroundColor: CHARACTERS.mama.bgColor }}>
+                {CHARACTERS.mama.emoji}
+              </div>
+              <div>
+                <p className="text-[10px] font-medium mb-1" style={{ color: CHARACTERS.mama.color }}>{CHARACTERS.mama.title}</p>
+                <p className="text-gray-200 text-sm leading-relaxed">「{closingWord}」</p>
+              </div>
+            </div>
+            <button onClick={goFarewell} className="w-full py-3 bg-amber-700 hover:bg-amber-600 text-white rounded-xl text-sm font-medium">
+              帰る
+            </button>
+          </>
+        )}
+
+        {step === 'farewell' && <FarewellStep farewellWord={farewellWord} onDone={onConfirm} />}
+      </div>
+    </div>
+  )
+}
+
 // ─── Exit Modal ───────────────────────────────────────────────────────────
 function ExitModal({
   presentChars,
@@ -220,6 +390,8 @@ function ExitModal({
   sessionId,
   nickname,
   entryDrink,
+  userId,
+  mood,
   onConfirm,
   onCancel,
 }: {
@@ -229,6 +401,8 @@ function ExitModal({
   sessionId: string
   nickname: string
   entryDrink: string | null
+  userId: string
+  mood: string
   onConfirm: () => void
   onCancel: () => void
 }) {
@@ -368,7 +542,22 @@ function ExitModal({
               </div>
             </div>
             <button
-              onClick={() => setStep('farewell')}
+              onClick={() => {
+                if (userId) {
+                  fetch('/api/session-end', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      userId,
+                      sessionId,
+                      topics: getSummary(userMessages),
+                      mood,
+                      entryDrink,
+                    }),
+                  }).catch(() => {})
+                }
+                setStep('farewell')
+              }}
               className="w-full py-3 bg-amber-700 hover:bg-amber-600 text-white rounded-xl text-sm font-medium"
             >
               帰る
@@ -395,9 +584,12 @@ function ChatContent() {
   const params = useSearchParams()
   const nickname = params.get('nickname') || 'あなた'
   const mood = (params.get('mood') || 'unsure') as MoodType
+  const event = params.get('event')
 
   const sessionId = useRef(crypto.randomUUID())
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const userIdRef = useRef('')
+  const prevContextRef = useRef<{ topics?: string; mood?: string; entry_drink?: string; created_at: string } | null>(null)
 
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
@@ -484,6 +676,20 @@ function ChatContent() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  // Load/generate persistent userId and fetch previous session context
+  useEffect(() => {
+    let uid = localStorage.getItem('umao_user_id')
+    if (!uid) {
+      uid = crypto.randomUUID()
+      localStorage.setItem('umao_user_id', uid)
+    }
+    userIdRef.current = uid
+    fetch(`/api/user-context?userId=${uid}`)
+      .then(r => r.json())
+      .then(data => { if (data.prevSession) prevContextRef.current = data.prevSession })
+      .catch(() => {})
+  }, [])
+
   // Opening sequence
   useEffect(() => {
     const openMsg: Message = {
@@ -548,6 +754,8 @@ function ChatContent() {
         mood,
         turnCount: turnRef.current,
         sessionId: sessionId.current,
+        prevContext: characterId === 'mama' ? prevContextRef.current : undefined,
+        event: event ?? undefined,
       }),
     })
     if (!res.ok) throw new Error('API error')
@@ -1066,7 +1274,19 @@ function ChatContent() {
           onClose={() => setShowTip(false)}
         />
       )}
-      {showExit && (
+      {showExit && event === 'web3ai' ? (
+        <EventExitModal
+          presentChars={presentChars}
+          userMessages={userMsgs}
+          sessionId={sessionId.current}
+          nickname={nickname}
+          userId={userIdRef.current}
+          mood={mood}
+          entryDrink={selectedDrink}
+          onConfirm={() => router.push('/event')}
+          onCancel={() => setShowExit(false)}
+        />
+      ) : showExit ? (
         <ExitModal
           presentChars={presentChars}
           userMessages={userMsgs}
@@ -1074,10 +1294,12 @@ function ChatContent() {
           sessionId={sessionId.current}
           nickname={nickname}
           entryDrink={selectedDrink}
+          userId={userIdRef.current}
+          mood={mood}
           onConfirm={() => router.push('/')}
           onCancel={() => setShowExit(false)}
         />
-      )}
+      ) : null}
     </div>
   )
 }
