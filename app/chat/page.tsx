@@ -967,7 +967,7 @@ function ChatContent() {
       <header className="px-4 py-3 border-b border-gray-900 flex items-center justify-between sticky top-0 z-10 backdrop-blur-md" style={{ background: 'rgba(8,6,18,0.85)' }}>
         <div>
           <h1 className="text-sm font-bold text-amber-500" style={{ fontFamily: 'Georgia, serif' }}>
-            スナック メタバース UMAO
+            メタバース スナック UMAO
           </h1>
           <p className="text-[10px] text-gray-600 mt-0.5">
             ママのうまおと常連のお客さんがいます。話しかけてみてくださいね！

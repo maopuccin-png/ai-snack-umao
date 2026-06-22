@@ -5,7 +5,7 @@ import "./globals.css";
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? ''
 
 export const metadata: Metadata = {
-  title: "スナック メタバース UMAO",
+  title: "メタバース スナック UMAO",
   description: "メタバースカウンターはいつでもウェルカム。",
 };
 

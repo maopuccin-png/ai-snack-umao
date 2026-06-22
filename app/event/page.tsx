@@ -38,7 +38,7 @@ export default function EventPage() {
             className="text-3xl font-bold text-white mb-1"
             style={{ fontFamily: 'Georgia, serif', letterSpacing: '0.05em' }}
           >
-            スナック メタバース
+            メタバース スナック
             <br />
             UMAO
           </h1>
