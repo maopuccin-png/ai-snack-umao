@@ -70,7 +70,7 @@ export default function EntryPage() {
             className="text-3xl font-bold text-white mb-6"
             style={{ fontFamily: 'Georgia, serif', letterSpacing: '0.05em' }}
           >
-            スナック メタバース
+            メタバース スナック
             <br />
             UMAO
           </h1>
