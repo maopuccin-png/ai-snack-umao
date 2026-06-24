@@ -223,11 +223,8 @@ function FarewellStep({ farewellWord, onDone }: { farewellWord: string; onDone: 
 
   return (
     <div className="text-center py-4">
-      <div
-        className="w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 border-2"
-        style={{ borderColor: CHARACTERS.mama.color, backgroundColor: CHARACTERS.mama.bgColor }}
-      >
-        {CHARACTERS.mama.emoji}
+      <div className="mx-auto mb-4 w-16 h-16">
+        <CharIcon char={CHARACTERS.mama} size={64} />
       </div>
       <p className="text-gray-200 text-sm leading-relaxed animate-pulse">
         「{farewellWord}」
@@ -386,9 +383,7 @@ function EventExitModal({
         {step === 'thanks' && (
           <>
             <div className="flex gap-3 items-start mb-6">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center text-xl flex-shrink-0 border-2" style={{ borderColor: CHARACTERS.mama.color, backgroundColor: CHARACTERS.mama.bgColor }}>
-                {CHARACTERS.mama.emoji}
-              </div>
+              <CharIcon char={CHARACTERS.mama} size={40} />
               <div>
                 <p className="text-[10px] font-medium mb-1" style={{ color: CHARACTERS.mama.color }}>{CHARACTERS.mama.title}</p>
                 <p className="text-gray-200 text-sm leading-relaxed">「{closingWord}」</p>
@@ -547,12 +542,7 @@ function ExitModal({
         {step === 'thanks' && (
           <>
             <div className="flex gap-3 items-start mb-6">
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center text-xl flex-shrink-0 border-2"
-                style={{ borderColor: CHARACTERS.mama.color, backgroundColor: CHARACTERS.mama.bgColor }}
-              >
-                {CHARACTERS.mama.emoji}
-              </div>
+              <CharIcon char={CHARACTERS.mama} size={40} />
               <div>
                 <p className="text-[10px] font-medium mb-1" style={{ color: CHARACTERS.mama.color }}>
                   {CHARACTERS.mama.title}
