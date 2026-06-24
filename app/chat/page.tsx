@@ -46,7 +46,7 @@ function CharIcon({ char, size, className }: { char: { emoji: string; iconImage?
         width={size}
         height={size}
         className={`rounded-full flex-shrink-0 ${className ?? ''}`}
-        style={{ border: `2px solid ${char.color}` }}
+        style={{ border: `2px solid ${char.color}`, width: size, height: size, objectFit: 'cover' }}
       />
     )
   }
