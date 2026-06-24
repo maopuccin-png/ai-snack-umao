@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Image from 'next/image'
 import {
   CHARACTERS, TRIGGERS, MOOD_OPENERS,
   CharacterType, MoodType,
@@ -36,6 +37,29 @@ interface Message {
 type CharStatus = 'absent' | 'present' | 'away'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
+function CharIcon({ char, size, className }: { char: { emoji: string; iconImage?: string; color: string; bgColor: string }; size: number; className?: string }) {
+  if (char.iconImage) {
+    return (
+      <Image
+        src={char.iconImage}
+        alt=""
+        width={size}
+        height={size}
+        className={`rounded-full flex-shrink-0 ${className ?? ''}`}
+        style={{ border: `2px solid ${char.color}` }}
+      />
+    )
+  }
+  return (
+    <div
+      className={`rounded-full flex items-center justify-center flex-shrink-0 border-2 ${className ?? ''}`}
+      style={{ width: size, height: size, fontSize: size * 0.5, borderColor: char.color, backgroundColor: char.bgColor }}
+    >
+      {char.emoji}
+    </div>
+  )
+}
+
 function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
 }
@@ -277,7 +301,7 @@ function EventExitModal({
                 const c = CHARACTERS[cid]
                 return (
                   <div key={cid} className="flex gap-3 items-start">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 border" style={{ borderColor: c.color, backgroundColor: c.bgColor }}>{c.emoji}</div>
+                    <CharIcon char={c} size={32} />
                     <div>
                       <p className="text-[10px] font-medium mb-0.5" style={{ color: c.color }}>{c.title}</p>
                       <p className="text-gray-300 text-sm leading-relaxed">{msg}</p>
@@ -443,12 +467,7 @@ function ExitModal({
                 const c = CHARACTERS[cid]
                 return (
                   <div key={cid} className="flex gap-3 items-start">
-                    <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 border"
-                      style={{ borderColor: c.color, backgroundColor: c.bgColor }}
-                    >
-                      {c.emoji}
-                    </div>
+                    <CharIcon char={c} size={32} />
                     <div>
                       <p className="text-[10px] font-medium mb-0.5" style={{ color: c.color }}>{c.title}</p>
                       <p className="text-gray-300 text-sm leading-relaxed">{msg}</p>
@@ -1005,17 +1024,32 @@ function ChatContent() {
                 isPresent ? 'opacity-100' : isAway ? 'opacity-40' : 'opacity-20'
               }`}
             >
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center text-xl transition-all relative"
-                style={{
-                  border: isFocused
-                    ? `2.5px solid ${c.color}`
-                    : `2px solid ${isPresent ? c.color + '80' : '#2a2a3a'}`,
-                  backgroundColor: isFocused ? c.bgColor : isPresent ? c.bgColor + '60' : 'transparent',
-                  boxShadow: isFocused ? `0 0 8px ${c.color}55` : 'none',
-                }}
-              >
-                {c.emoji}
+              <div className="relative transition-all" style={{ width: 40, height: 40 }}>
+                {c.iconImage ? (
+                  <Image
+                    src={c.iconImage}
+                    alt={c.name}
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                    style={{
+                      border: isFocused ? `2.5px solid ${c.color}` : `2px solid ${isPresent ? c.color + '80' : '#2a2a3a'}`,
+                      boxShadow: isFocused ? `0 0 8px ${c.color}55` : 'none',
+                      opacity: isPresent ? 1 : 0.3,
+                    }}
+                  />
+                ) : (
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-xl"
+                    style={{
+                      border: isFocused ? `2.5px solid ${c.color}` : `2px solid ${isPresent ? c.color + '80' : '#2a2a3a'}`,
+                      backgroundColor: isFocused ? c.bgColor : isPresent ? c.bgColor + '60' : 'transparent',
+                      boxShadow: isFocused ? `0 0 8px ${c.color}55` : 'none',
+                    }}
+                  >
+                    {c.emoji}
+                  </div>
+                )}
                 {isAway && (
                   <span className="absolute -bottom-0.5 -right-0.5 text-[8px] bg-[#0d0d18] px-0.5 rounded text-gray-500">
                     外
@@ -1059,12 +1093,7 @@ function ChatContent() {
             const chosen = DRINK_OPTIONS.find(d => d.id === selectedDrink)
             return (
               <div key={msg.id} className="flex gap-3">
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-lg flex-shrink-0 mt-0.5 border-2"
-                  style={{ borderColor: char.color, backgroundColor: char.bgColor }}
-                >
-                  {char.emoji}
-                </div>
+                <CharIcon char={char} size={36} className="mt-0.5" />
                 <div className="max-w-[85%]">
                   <p className="text-[10px] mb-1 font-medium" style={{ color: char.color }}>{char.title}</p>
                   <div
@@ -1101,12 +1130,7 @@ function ChatContent() {
           if (msg.isIntro) {
             return (
               <div key={msg.id} className="flex gap-3">
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-lg flex-shrink-0 mt-0.5 border-2"
-                  style={{ borderColor: char.color, backgroundColor: char.bgColor }}
-                >
-                  {char.emoji}
-                </div>
+                <CharIcon char={char} size={36} className="mt-0.5" />
                 <div className="max-w-[85%]">
                   <p className="text-[10px] mb-1 font-medium" style={{ color: char.color }}>{char.title}</p>
                   <div
@@ -1124,7 +1148,7 @@ function ChatContent() {
                           className={`flex items-center gap-3 px-3 py-2.5 ${i !== CHAR_ORDER.length - 1 ? 'border-b border-gray-800' : ''}`}
                           style={{ backgroundColor: `${c.bgColor}` }}
                         >
-                          <span className="text-xl flex-shrink-0">{c.emoji}</span>
+                          <CharIcon char={c} size={28} />
                           <div className="flex-1 min-w-0">
                             <p className="text-xs font-medium" style={{ color: c.color }}>{c.name}</p>
                             <p className="text-[10px] text-gray-500 leading-relaxed">{c.intro}</p>
@@ -1166,12 +1190,7 @@ function ChatContent() {
           // Normal assistant bubble
           return (
             <div key={msg.id} className="flex gap-3">
-              <div
-                className="w-9 h-9 rounded-full flex items-center justify-center text-lg flex-shrink-0 mt-0.5 border-2"
-                style={{ borderColor: char.color, backgroundColor: char.bgColor }}
-              >
-                {char.emoji}
-              </div>
+              <CharIcon char={char} size={36} className="mt-0.5" />
               <div className="max-w-[78%]">
                 <p className="text-[10px] mb-1 font-medium" style={{ color: char.color }}>{char.title}</p>
                 <div
@@ -1188,12 +1207,7 @@ function ChatContent() {
         {/* Typing indicator */}
         {loading && (
           <div className="flex gap-3">
-            <div
-              className="w-9 h-9 rounded-full flex items-center justify-center text-lg flex-shrink-0 border-2"
-              style={{ borderColor: CHARACTERS.mama.color, backgroundColor: CHARACTERS.mama.bgColor }}
-            >
-              🌹
-            </div>
+            <CharIcon char={CHARACTERS.mama} size={36} />
             <div
               className="px-4 py-3 rounded-2xl rounded-tl-sm border"
               style={{ backgroundColor: CHARACTERS.mama.bgColor, borderColor: `${CHARACTERS.mama.color}22` }}
@@ -1220,7 +1234,7 @@ function ChatContent() {
                       onMouseDown={e => { e.preventDefault(); insertMention(name) }}
                       className="w-full flex items-center gap-2 px-3 py-2 hover:bg-[#251d3a] text-left transition-colors"
                     >
-                      <span>{c.emoji}</span>
+                      <CharIcon char={c} size={20} />
                       <span className="text-xs font-medium" style={{ color: c.color }}>@{name}</span>
                     </button>
                   )

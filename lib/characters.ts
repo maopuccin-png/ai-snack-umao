@@ -6,6 +6,7 @@ export interface Character {
   name: string
   title: string
   emoji: string
+  iconImage?: string
   color: string
   bgColor: string
   joinLine: string
@@ -26,6 +27,7 @@ export const CHARACTERS: Record<CharacterType, Character> = {
     name: 'うまお',
     title: 'ママ',
     emoji: '🌹',
+    iconImage: '/mama-icon.png',
     color: '#f9a8d4',
     bgColor: 'rgba(249,168,212,0.08)',
     joinLine: '',

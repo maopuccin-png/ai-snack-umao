@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { MOODS, MoodType } from '@/lib/characters'
 
 function getDailyMamaMessage(): string {
@@ -87,9 +88,19 @@ export default function EntryPage() {
             <div className="text-[10px] tracking-[0.3em] text-amber-600 opacity-80 mb-2">
               本日のママからの一言
             </div>
-            <p className="text-[13px] text-amber-200/75 leading-relaxed">
-              「{mamaMessage}」
-            </p>
+            <div className="flex items-center gap-3">
+              <Image
+                src="/mama-icon.png"
+                alt="うまお"
+                width={40}
+                height={40}
+                className="rounded-full flex-shrink-0"
+                style={{ border: '2px solid #f9a8d4' }}
+              />
+              <p className="text-[13px] text-amber-200/75 leading-relaxed">
+                「{mamaMessage}」
+              </p>
+            </div>
           </div>
 
           <p className="text-[12px] text-gray-500 leading-relaxed tracking-wide">
