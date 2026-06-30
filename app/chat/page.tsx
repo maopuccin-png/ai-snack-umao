@@ -217,7 +217,7 @@ function TipModal({
 // ─── Farewell Step ────────────────────────────────────────────────────────
 function FarewellStep({ farewellWord, onDone }: { farewellWord: string; onDone: () => void }) {
   useEffect(() => {
-    const t = setTimeout(onDone, 2800)
+    const t = setTimeout(onDone, 8000)
     return () => clearTimeout(t)
   }, [onDone])
 
