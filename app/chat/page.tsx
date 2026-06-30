@@ -226,9 +226,19 @@ function FarewellStep({ farewellWord, onDone }: { farewellWord: string; onDone: 
       <div className="mx-auto mb-4 w-16 h-16">
         <CharIcon char={CHARACTERS.mama} size={64} />
       </div>
-      <p className="text-gray-200 text-sm leading-relaxed animate-pulse">
+      <p className="text-gray-200 text-sm leading-relaxed animate-pulse mb-5">
         「{farewellWord}」
       </p>
+      <a
+        href="https://www.instagram.com/ai_snack_umao"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center justify-center gap-2 mx-auto w-fit px-4 py-2.5 rounded-xl border border-pink-800/50 bg-pink-950/20 text-pink-300 text-xs hover:border-pink-600 hover:bg-pink-950/40 transition-all"
+      >
+        <span>📸</span>
+        <span>よかったら私のInstagramも<br />のぞいてみてね</span>
+        <span className="text-pink-500">@ai_snack_umao</span>
+      </a>
     </div>
   )
 }
