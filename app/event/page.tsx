@@ -25,15 +25,7 @@ export default function EventPage() {
   return (
     <main className="min-h-screen flex items-center justify-center px-4" style={{ background: 'rgba(8,6,18,0.82)' }}>
       {entering && (
-        <div className="fixed inset-0 bg-[#0d0d18] z-50 flex flex-col items-center justify-center gap-6">
-          <Image
-            src="/welcome.png"
-            alt="メタバース スナック UMAO"
-            width={360}
-            height={200}
-            className="rounded-xl opacity-90"
-            style={{ objectFit: 'cover' }}
-          />
+        <div className="fixed inset-0 bg-[#0d0d18] z-50 flex items-center justify-center">
           <p className="text-amber-400 text-base font-light tracking-[0.4em] animate-pulse">
             いらっしゃい…
           </p>
