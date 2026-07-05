@@ -17,6 +17,10 @@ const DRINK_OPTIONS = [
   { id: 'tameiki',    emoji: '☕', name: 'ため息カフェラテ',      response: 'うんうん、おつかれさま。ふぅ、ってしたあとちょっと、ゆるまるといいな。今日はゆっくりしていってね。' },
   { id: 'hitoyasumi', emoji: '🍵', name: 'ひとやすみ茶',         response: 'うんうん。たまには立ち止まる日も大事。ゆったりしていってね。' },
   { id: 'lemonade',   emoji: '🍋', name: 'なんとなくレモネード', response: 'ふふっ。そういう日もあるよね。席は空いてるから、のんびりしていってね。' },
+  { id: 'yoreyore',   emoji: '🥃', name: 'よれよれハイボール',   response: 'もう十分頑張ったじゃない。今夜はよれよれのままでいいのよ。' },
+  { id: 'shimijimi',  emoji: '🍶', name: 'しみじみ日本酒',       response: 'しみじみする夜もあるよね。ゆっくり飲みましょ。' },
+  { id: 'yakekuso',   emoji: '🍸', name: 'やけくそカクテル',     response: 'やけくそって言えるくらい、ちゃんと向き合ってたんじゃない。' },
+  { id: 'otsukaresam',emoji: '🥂', name: 'おつかれシャンパン',   response: '今日のあなた、よく頑張ったわね。おつかれさまの乾杯しましょ！' },
 ] as const
 
 type DrinkId = typeof DRINK_OPTIONS[number]['id']
@@ -711,12 +715,35 @@ function ChatContent() {
 
   // Opening sequence
   useEffect(() => {
+    const openContent =
+      event === 'web3ai' ? 'いらっしゃい〜。会いたかったわ！講義、おつかれさま。' :
+      event === 'chibatech' ? 'いらっしゃい。CHIBATECH、来てくれてありがとう。ゆっくりしていってね。' :
+      MOOD_OPENERS[mood]
+
     const openMsg: Message = {
       id: 'open',
       role: 'assistant',
-      content: event === 'web3ai' ? 'いらっしゃい〜。会いたかったわ！講義、おつかれさま。' : MOOD_OPENERS[mood],
+      content: openContent,
       characterId: 'mama',
     }
+
+    // CHIBATECHはドリンク選択済みで来るのでドリンク表示をスキップ
+    if (event === 'chibatech') {
+      const drinkParam = new URLSearchParams(window.location.search).get('drink')
+      const drink = DRINK_OPTIONS.find(d => d.id === drinkParam)
+      if (drink) {
+        setSelectedDrink(drink.id as DrinkId)
+        const drinkMsg: Message = {
+          id: 'follow',
+          role: 'assistant',
+          content: `${drink.emoji} ${drink.name}、お待たせしました！今日はどんな感じ？`,
+          characterId: 'mama',
+        }
+        setMessages([openMsg, drinkMsg])
+        return
+      }
+    }
+
     const drinkSelectionMsg: Message = {
       id: 'drink',
       role: 'assistant',
@@ -1108,7 +1135,7 @@ function ChatContent() {
                       <p className="text-amber-300 text-xs font-medium">{chosen.name}</p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-2">
                       {DRINK_OPTIONS.map(d => (
                         <button
                           key={d.id}
