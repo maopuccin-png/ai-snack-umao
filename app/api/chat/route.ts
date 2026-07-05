@@ -29,7 +29,7 @@ const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_
 async function generateWithGroq(systemPrompt: string, prompt: string): Promise<string> {
   if (!groq) throw new Error('Groq not configured')
   const completion = await groq.chat.completions.create({
-    model: 'llama-3.3-70b-versatile',
+    model: 'qwen-qwq-32b',
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: prompt },
