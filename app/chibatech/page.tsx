@@ -70,6 +70,11 @@ export default function ChibatechPage() {
           <p className="mt-2">うまく話せなくても大丈夫。</p>
         </div>
 
+        <div className="w-full border border-amber-900/40 rounded-lg px-4 py-3 text-left bg-amber-950/10">
+          <div className="text-[10px] tracking-[0.3em] text-amber-600 opacity-80 mb-2">ママからひとこと</div>
+          <p className="text-[13px] text-amber-200/75 leading-relaxed">「学生さんには🍓も準備してるわよ。」</p>
+        </div>
+
         <div className="w-full border-t border-gray-900" />
 
         {/* ドリンク選択 */}
