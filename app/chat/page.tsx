@@ -813,7 +813,7 @@ function ChatContent() {
   useEffect(() => {
     const openContent =
       event === 'web3ai' ? 'いらっしゃい〜。会いたかったわ！講義、おつかれさま。' :
-      event === 'chibatech' ? 'いらっしゃい。CHIBATECH、来てくれてありがとう。ゆっくりしていってね。' :
+      event === 'chibatech' ? 'いらっしゃい。来てくれてありがとう。ゆっくりしていってね。' :
       MOOD_OPENERS[mood]
 
     const openMsg: Message = {
