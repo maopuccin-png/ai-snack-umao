@@ -72,7 +72,7 @@ export default function ChibatechPage() {
 
         <div className="w-full border border-amber-900/40 rounded-lg px-4 py-3 text-left bg-amber-950/10">
           <div className="text-[10px] tracking-[0.3em] text-amber-600 opacity-80 mb-2">ママからひとこと</div>
-          <p className="text-[13px] text-amber-200/75 leading-relaxed">「学生さんには🍓も準備してるわよ。」</p>
+          <p className="text-[13px] text-amber-200/75 leading-relaxed">「来てくれてありがとう。学生さんには🍓も用意してるわよ✨」</p>
         </div>
 
         <div className="w-full border-t border-gray-900" />
