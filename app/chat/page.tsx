@@ -257,11 +257,10 @@ function ChibatechExitModal({
   onConfirm: () => void
   onCancel: () => void
 }) {
-  type Step = 'confirm' | 'student' | 'ichigo' | 'farewell'
+  type Step = 'confirm' | 'student' | 'ichigo' | 'thanks' | 'farewell'
   const [step, setStep] = useState<Step>('confirm')
   const [recipient, setRecipient] = useState('')
   const [sending, setSending] = useState(false)
-  const [farewellWord] = useState(() => pick(MAMA_FAREWELL))
 
   const handleReceive = async () => {
     if (!recipient.trim()) return
@@ -272,7 +271,7 @@ function ChibatechExitModal({
       body: JSON.stringify({ sessionId, recipient: recipient.trim() }),
     }).catch(() => {})
     setSending(false)
-    setStep('farewell')
+    setStep('thanks')
   }
 
   return (
@@ -334,8 +333,12 @@ function ChibatechExitModal({
           </>
         )}
 
+        {step === 'thanks' && (
+          <FarewellStep farewellWord="あとで🍓を送っておくわね。今日はありがとう！また来てね。" onDone={onConfirm} />
+        )}
+
         {step === 'farewell' && (
-          <FarewellStep farewellWord={farewellWord} onDone={onConfirm} />
+          <FarewellStep farewellWord="ありがとうございました！よかったらまた来てね。" onDone={onConfirm} />
         )}
 
       </div>
