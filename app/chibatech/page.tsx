@@ -63,6 +63,13 @@ export default function ChibatechPage() {
           <p className="text-[11px] text-amber-700/80 tracking-widest">日帰り出張スナック CHIBATECH編</p>
         </div>
 
+        <div className="text-[12px] text-gray-500 leading-relaxed tracking-wide text-center">
+          <p>答えが欲しい日もある。<br />ただ聞いてほしい日もある。</p>
+          <p className="mt-2">ここは、AIのママと常連たちが集うカウンター。</p>
+          <p className="mt-2">雑談でも、人生相談でも、<br />なんとなく立ち寄るだけでも大丈夫。</p>
+          <p className="mt-2">うまく話せなくても大丈夫。</p>
+        </div>
+
         <div className="w-full border-t border-gray-900" />
 
         {/* ドリンク選択 */}
@@ -86,6 +93,9 @@ export default function ChibatechPage() {
           </div>
         </div>
 
+        <p className="text-[12px] text-gray-500 text-center leading-relaxed">
+          チャージなし・セット料金なし<br />飲み物は自由（ノンアルOK）
+        </p>
         <p className="text-[10px] text-gray-700 text-center">
           会話の内容は保存されません
         </p>
