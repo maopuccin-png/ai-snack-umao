@@ -247,6 +247,102 @@ function FarewellStep({ farewellWord, onDone }: { farewellWord: string; onDone: 
   )
 }
 
+// ─── Chibatech Exit Modal ─────────────────────────────────────────────────
+function ChibatechExitModal({
+  sessionId,
+  onConfirm,
+  onCancel,
+}: {
+  sessionId: string
+  onConfirm: () => void
+  onCancel: () => void
+}) {
+  type Step = 'confirm' | 'student' | 'ichigo' | 'farewell'
+  const [step, setStep] = useState<Step>('confirm')
+  const [recipient, setRecipient] = useState('')
+  const [sending, setSending] = useState(false)
+  const [farewellWord] = useState(() => pick(MAMA_FAREWELL))
+
+  const handleReceive = async () => {
+    if (!recipient.trim()) return
+    setSending(true)
+    await fetch('/api/ichigo-recipient', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, recipient: recipient.trim() }),
+    }).catch(() => {})
+    setSending(false)
+    setStep('farewell')
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/75 z-50 flex items-end sm:items-center justify-center p-4">
+      <div className="bg-[#1a1030] border border-gray-800 rounded-2xl w-full max-w-sm p-6">
+
+        {step === 'confirm' && (
+          <>
+            <h2 className="text-white font-bold mb-5">もう帰る？</h2>
+            <div className="flex gap-2">
+              <button onClick={onCancel} className="flex-1 py-3 border border-gray-800 text-gray-500 rounded-xl text-sm">もう少し話す</button>
+              <button onClick={() => setStep('student')} className="flex-1 py-3 bg-amber-700 hover:bg-amber-600 text-white rounded-xl text-sm font-medium">退店する</button>
+            </div>
+          </>
+        )}
+
+        {step === 'student' && (
+          <>
+            <div className="flex gap-3 items-start mb-5">
+              <CharIcon char={CHARACTERS.mama} size={40} />
+              <div>
+                <p className="text-[10px] font-medium mb-1" style={{ color: CHARACTERS.mama.color }}>{CHARACTERS.mama.title}</p>
+                <p className="text-gray-200 text-sm leading-relaxed">今日は来てくれてありがとう。Web3 AI概論の受講生かしら？</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => setStep('ichigo')} className="flex-1 py-3 bg-pink-900/40 hover:bg-pink-900/60 border border-pink-800/50 text-pink-300 rounded-xl text-sm font-medium">はい</button>
+              <button onClick={() => setStep('farewell')} className="flex-1 py-3 border border-gray-800 text-gray-500 rounded-xl text-sm">いいえ</button>
+            </div>
+          </>
+        )}
+
+        {step === 'ichigo' && (
+          <>
+            <div className="flex gap-3 items-start mb-4">
+              <CharIcon char={CHARACTERS.mama} size={40} />
+              <div>
+                <p className="text-[10px] font-medium mb-1" style={{ color: CHARACTERS.mama.color }}>{CHARACTERS.mama.title}</p>
+                <p className="text-gray-200 text-sm leading-relaxed">来てくれたお礼に、ICHIGOを一杯おごるわね🍓よかったらDiscord IDかウォレットアドレスを教えて。</p>
+              </div>
+            </div>
+            <input
+              type="text"
+              value={recipient}
+              onChange={e => setRecipient(e.target.value)}
+              placeholder="Discord ID またはウォレットアドレス"
+              className="w-full bg-[#13111e] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-700 focus:outline-none focus:border-amber-900 mb-3"
+            />
+            <button
+              onClick={handleReceive}
+              disabled={!recipient.trim() || sending}
+              className="w-full py-3 bg-amber-700 hover:bg-amber-600 disabled:bg-[#13111e] disabled:text-gray-700 text-white rounded-xl text-sm font-medium mb-2"
+            >
+              {sending ? '送信中…' : '受け取る 🍓'}
+            </button>
+            <button onClick={() => setStep('farewell')} className="w-full text-[11px] text-gray-700 hover:text-gray-500 transition-colors">
+              気持ちだけで十分だよ
+            </button>
+          </>
+        )}
+
+        {step === 'farewell' && (
+          <FarewellStep farewellWord={farewellWord} onDone={onConfirm} />
+        )}
+
+      </div>
+    </div>
+  )
+}
+
 // ─── Event Exit Modal ─────────────────────────────────────────────────────
 function EventExitModal({
   presentChars,
@@ -1316,7 +1412,13 @@ function ChatContent() {
           onClose={() => setShowTip(false)}
         />
       )}
-      {showExit && event === 'web3ai' ? (
+      {showExit && event === 'chibatech' ? (
+        <ChibatechExitModal
+          sessionId={sessionId.current}
+          onConfirm={() => router.push('/chibatech')}
+          onCancel={() => setShowExit(false)}
+        />
+      ) : showExit && event === 'web3ai' ? (
         <EventExitModal
           presentChars={presentChars}
           userMessages={userMsgs}
