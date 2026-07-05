@@ -60,7 +60,7 @@ export default function ChibatechPage() {
             <br />
             UMAO
           </h1>
-          <p className="text-[11px] text-amber-700/80 tracking-widest">日帰り出張 CHIBATECH編</p>
+          <p className="text-[11px] text-amber-700/80 tracking-widest">日帰り出張スナック CHIBATECH編</p>
         </div>
 
         <div className="w-full border-t border-gray-900" />
