@@ -9,6 +9,8 @@ const CHIBATECH_DRINKS = [
   { id: 'yakekuso',    emoji: '🍸', name: 'やけくそカクテル',     sub: 'もうやけくそ！' },
   { id: 'otsukaresam', emoji: '🥂', name: 'おつかれシャンパン',   sub: '今日の自分を褒めたい' },
   { id: 'moyamoya',    emoji: '🍹', name: 'もやもやソーダ',       sub: 'なんかモヤッとしてる' },
+  { id: 'tameiki',     emoji: '☕', name: 'ため息カフェラテ',      sub: 'ふぅ…って日' },
+  { id: 'hitoyasumi',  emoji: '🍵', name: 'ひとやすみ茶',         sub: 'ちょっと立ち止まりたい' },
   { id: 'lemonade',    emoji: '🍋', name: 'なんとなくレモネード', sub: 'なんとなく来た' },
 ] as const
 
