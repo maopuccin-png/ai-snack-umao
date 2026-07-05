@@ -4,12 +4,12 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 
 const CHIBATECH_DRINKS = [
-  { id: 'yoreyore',    emoji: '🥃', name: 'よれよれハイボール',   sub: '疲れ切ってる！' },
-  { id: 'shimijimi',   emoji: '🍶', name: 'しみじみ日本酒',       sub: 'なんかしみじみ…' },
+  { id: 'yoreyore',    emoji: '🥃', name: 'よれよれハイボール',   sub: 'とにかく疲れ切ってる…！' },
+  { id: 'shimijimi',   emoji: '🍶', name: 'しみじみ日本酒',       sub: 'こんな時はしみじみ…' },
   { id: 'yakekuso',    emoji: '🍸', name: 'やけくそカクテル',     sub: 'もうやけくそ！' },
   { id: 'otsukaresam', emoji: '🥂', name: 'おつかれシャンパン',   sub: '今日の自分を褒めたい' },
-  { id: 'moyamoya',    emoji: '🍹', name: 'もやもやソーダ',       sub: 'なんかモヤッとしてる' },
-  { id: 'tameiki',     emoji: '☕', name: 'ため息カフェラテ',      sub: 'ふぅ…って日' },
+  { id: 'moyamoya',    emoji: '🍹', name: 'もやもやソーダ',       sub: 'なんとなくモヤっとしてる' },
+  { id: 'tameiki',     emoji: '☕', name: 'ため息カフェラテ',      sub: 'ふぅ…って日なんだ' },
   { id: 'hitoyasumi',  emoji: '🍵', name: 'ひとやすみ茶',         sub: 'ちょっと立ち止まりたい' },
   { id: 'lemonade',    emoji: '🍋', name: 'なんとなくレモネード', sub: 'なんとなく来た' },
 ] as const
