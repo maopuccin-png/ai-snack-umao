@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import Groq from 'groq-sdk'
+import OpenAI from 'openai'
 import { CHARACTERS, CharacterType } from '@/lib/characters'
 import { supabase } from '@/lib/supabase'
 import fs from 'fs'
@@ -25,11 +26,25 @@ export const maxDuration = 60
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!)
 const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null
+const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null
 
 async function generateWithGroq(systemPrompt: string, prompt: string): Promise<string> {
   if (!groq) throw new Error('Groq not configured')
   const completion = await groq.chat.completions.create({
     model: 'qwen-qwq-32b',
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: prompt },
+    ],
+    max_tokens: 300,
+  })
+  return completion.choices[0]?.message?.content ?? ''
+}
+
+async function generateWithOpenAI(systemPrompt: string, prompt: string): Promise<string> {
+  if (!openai) throw new Error('OpenAI not configured')
+  const completion = await openai.chat.completions.create({
+    model: 'gpt-4o-mini',
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: prompt },
@@ -144,11 +159,21 @@ export async function POST(req: Request) {
     const isQuotaError = err instanceof Error && (
       err.message.includes('429') ||
       err.message.includes('quota') ||
-      err.message.includes('RESOURCE_EXHAUSTED')
+      err.message.includes('RESOURCE_EXHAUSTED') ||
+      err.message.includes('503')
     )
-    if (isQuotaError && groq) {
-      console.warn('Gemini quota exceeded, falling back to Groq')
-      rawText = await generateWithGroq(fullSystemPrompt, prompt)
+    if (isQuotaError) {
+      try {
+        console.warn('Gemini quota exceeded, falling back to Groq')
+        rawText = await generateWithGroq(fullSystemPrompt, prompt)
+      } catch (groqErr: unknown) {
+        if (openai) {
+          console.warn('Groq failed, falling back to OpenAI')
+          rawText = await generateWithOpenAI(fullSystemPrompt, prompt)
+        } else {
+          throw groqErr
+        }
+      }
     } else {
       throw err
     }
