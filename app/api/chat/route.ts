@@ -28,7 +28,7 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!)
 const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null
 
-async function generateWithGroq(systemPrompt: string, prompt: string): Promise<string> {
+async function generateWithGroq(systemPrompt: string, prompt: string, maxTokens = 300): Promise<string> {
   if (!groq) throw new Error('Groq not configured')
   const completion = await groq.chat.completions.create({
     model: 'qwen-qwq-32b',
@@ -36,12 +36,12 @@ async function generateWithGroq(systemPrompt: string, prompt: string): Promise<s
       { role: 'system', content: systemPrompt },
       { role: 'user', content: prompt },
     ],
-    max_tokens: 300,
+    max_tokens: maxTokens,
   })
   return completion.choices[0]?.message?.content ?? ''
 }
 
-async function generateWithOpenAI(systemPrompt: string, prompt: string): Promise<string> {
+async function generateWithOpenAI(systemPrompt: string, prompt: string, maxTokens = 300): Promise<string> {
   if (!openai) throw new Error('OpenAI not configured')
   const completion = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
@@ -49,7 +49,7 @@ async function generateWithOpenAI(systemPrompt: string, prompt: string): Promise
       { role: 'system', content: systemPrompt },
       { role: 'user', content: prompt },
     ],
-    max_tokens: 300,
+    max_tokens: maxTokens,
   })
   return completion.choices[0]?.message?.content ?? ''
 }
@@ -198,14 +198,15 @@ CHIBATECHというテックイベントの会場に出張開店しています�
       err.message.includes('RESOURCE_EXHAUSTED') ||
       err.message.includes('503')
     )
+    const maxTokens = event === 'chibatech' ? 150 : 300
     if (isQuotaError) {
       try {
         console.warn('Gemini quota exceeded, falling back to Groq')
-        rawText = await generateWithGroq(fullSystemPrompt, prompt)
+        rawText = await generateWithGroq(fullSystemPrompt, prompt, maxTokens)
       } catch (groqErr: unknown) {
         if (openai) {
           console.warn('Groq failed, falling back to OpenAI')
-          rawText = await generateWithOpenAI(fullSystemPrompt, prompt)
+          rawText = await generateWithOpenAI(fullSystemPrompt, prompt, maxTokens)
         } else {
           throw groqErr
         }
