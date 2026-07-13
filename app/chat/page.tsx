@@ -816,7 +816,7 @@ function ChatContent() {
   useEffect(() => {
     const openContent =
       event === 'web3ai' ? 'いらっしゃい〜。会いたかったわ！講義、おつかれさま。' :
-      event === 'chibatech' ? 'いらっしゃい。来てくれてありがとう。ゆっくりしていってね。' :
+      event === 'chibatech' ? 'いらっしゃい！今日は来てくれてありがとう。' :
       MOOD_OPENERS[mood]
 
     const openMsg: Message = {
@@ -835,7 +835,7 @@ function ChatContent() {
         const drinkMsg: Message = {
           id: 'follow',
           role: 'assistant',
-          content: `${drink.emoji} ${drink.name}、お待たせしました！今日はどんな感じ？`,
+          content: `${drink.name}ね、お待たせしました！\nCHIBATECH、盛り上がってるわね。楽しめてる？`,
           characterId: 'mama',
         }
         setMessages([openMsg, drinkMsg])
