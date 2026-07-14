@@ -221,7 +221,7 @@ function TipModal({
 // ─── Farewell Step ────────────────────────────────────────────────────────
 function FarewellStep({ farewellWord, onDone, showUmaoLink }: { farewellWord: string; onDone: () => void; showUmaoLink?: boolean }) {
   useEffect(() => {
-    const t = setTimeout(onDone, 8000)
+    const t = setTimeout(onDone, 10000)
     return () => clearTimeout(t)
   }, [onDone])
 
@@ -246,11 +246,11 @@ function FarewellStep({ farewellWord, onDone, showUmaoLink }: { farewellWord: st
       {showUmaoLink && (
         <a
           href="/"
-          className="flex items-center justify-center gap-2 mx-auto w-fit px-4 py-2.5 rounded-xl border border-pink-800/50 bg-pink-950/20 text-pink-300 text-xs hover:border-pink-600 hover:bg-pink-950/40 transition-all"
+          className="flex items-center justify-center gap-2 mx-auto w-fit px-4 py-2.5 rounded-xl border border-pink-800/50 bg-pink-950/20 text-pink-300 text-xs hover:border-pink-600 hover:bg-pink-950/40 transition-all mt-2"
         >
           <span>🐴</span>
-          <span>24時間やってる通常版の<br />メタバーススナックUMAOも<br />よかったら遊びに来てね😊</span>
-          <span className="text-pink-500">&gt; お店へ寄ってみる🥂</span>
+          <span>24時間やってる<br />通常版の<br />メタバーススナック<br />UMAOも<br />よかったら遊びに来てね</span>
+          <span className="text-pink-500">&gt; お店へ<br />寄ってみる🥂</span>
         </a>
       )}
     </div>
