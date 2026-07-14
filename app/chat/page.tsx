@@ -219,7 +219,7 @@ function TipModal({
 }
 
 // ─── Farewell Step ────────────────────────────────────────────────────────
-function FarewellStep({ farewellWord, onDone }: { farewellWord: string; onDone: () => void }) {
+function FarewellStep({ farewellWord, onDone, showUmaoLink }: { farewellWord: string; onDone: () => void; showUmaoLink?: boolean }) {
   useEffect(() => {
     const t = setTimeout(onDone, 8000)
     return () => clearTimeout(t)
@@ -243,6 +243,16 @@ function FarewellStep({ farewellWord, onDone }: { farewellWord: string; onDone: 
         <span>よかったら私のInstagramも<br />のぞいてみてね</span>
         <span className="text-pink-500">@ai_snack_umao</span>
       </a>
+      {showUmaoLink && (
+        <a
+          href="/"
+          className="flex items-center justify-center gap-2 mx-auto w-fit px-4 py-2.5 rounded-xl border border-pink-800/50 bg-pink-950/20 text-pink-300 text-xs hover:border-pink-600 hover:bg-pink-950/40 transition-all"
+        >
+          <span>🐴</span>
+          <span>24時間やってる通常版の<br />メタバーススナックUMAOも<br />よかったら遊びに来てね😊</span>
+          <span className="text-pink-500">&gt; お店へ寄ってみる🥂</span>
+        </a>
+      )}
     </div>
   )
 }
@@ -334,11 +344,11 @@ function ChibatechExitModal({
         )}
 
         {step === 'thanks' && (
-          <FarewellStep farewellWord="あとで🍓を送っておくわね。今日はありがとう！また来てね。" onDone={onConfirm} />
+          <FarewellStep farewellWord="あとで🍓を送っておくわね。今日はありがとう！また来てね。" onDone={onConfirm}  showUmaoLink />
         )}
 
         {step === 'farewell' && (
-          <FarewellStep farewellWord="ありがとうございました！よかったらまた来てね。" onDone={onConfirm} />
+          <FarewellStep farewellWord="ありがとうございました！よかったらまた来てね。" onDone={onConfirm}  showUmaoLink />
         )}
 
       </div>
