@@ -858,7 +858,7 @@ function ChatContent() {
     const followMsg: Message = {
       id: 'follow',
       role: 'assistant',
-      content: `${option.emoji} ${option.name}、お待たせしました！で、${event === 'web3ai' ? 'Web3 AI概論はどう？' : event === 'chibatech' ? '今日はどんな感じ？😊' : '今日はどうしたの？'}`,
+      content: `${option.emoji} ${option.name}ね、お待たせしました！で、${event === 'web3ai' ? 'Web3 AI概論はどう？😊' : event === 'chibatech' ? '今日はどんな感じ？😊' : '今日はどうしたの？😊'}`,
       characterId: 'mama',
     }
     setMessages(prev => [
