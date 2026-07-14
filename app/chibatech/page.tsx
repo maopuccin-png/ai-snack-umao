@@ -89,7 +89,6 @@ export default function ChibatechPage() {
             type="text"
             value={nickname}
             onChange={e => setNickname(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleEnter()}
             placeholder="ニックネームでOK"
             maxLength={20}
             autoFocus
