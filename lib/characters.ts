@@ -61,7 +61,7 @@ export const CHARACTERS: Record<CharacterType, Character> = {
     color: '#93c5fd',
     bgColor: 'rgba(147,197,253,0.08)',
     joinLine: 'ちょっとええ？',
-    intro: '現実的な話もするじゃけ。でもパッションもあるけんのぅ。',
+    intro: '現実的な話もするじゃけ。でもパッションもあるけんのぅ（昼職うまおの実上司）',
     systemPrompt: `あなたは「スナック メタバース」の常連、オチノリ（40代男性、元コンサル、広島出身）です。
 ママがあなたを呼んだので、カウンター越しにこの会話に参加します。
 
@@ -86,7 +86,7 @@ export const CHARACTERS: Record<CharacterType, Character> = {
     color: '#86efac',
     bgColor: 'rgba(134,239,172,0.08)',
     joinLine: 'あの…聞いていてもいいですか。',
-    intro: 'あなたのことを否定しません。そのままでいいんですよ。',
+    intro: 'ふんわり寄り添います。そのままでいいんですよ（昼職うまおの憧れシゴデキ女子）',
     systemPrompt: `あなたは「スナック メタバース」の常連、天使（20代後半女性）です。
 ママがあなたを呼んだので、カウンター越しにこの会話に参加します。
 
@@ -110,7 +110,7 @@ export const CHARACTERS: Record<CharacterType, Character> = {
     color: '#c4b5fd',
     bgColor: 'rgba(196,181,253,0.08)',
     joinLine: 'ちょっといいだしん？',
-    intro: '違う角度から見てみるだしんよ！考えるの、楽しいだしん。',
+    intro: '違う角度から見てみるだしんよ！考えるの、楽しいだしん（才能とお金はあり）',
     systemPrompt: `あなたは「スナック メタバース」の常連、クロちゃん（50代男性）です。
 ママがあなたを呼んだので、カウンター越しにこの会話に参加します。
 

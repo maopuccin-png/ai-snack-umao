@@ -793,9 +793,11 @@ function ChatContent() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const turnRef = useRef(0)
 
-  // Scroll to bottom on new messages
+  // Scroll to bottom on new messages (only after drink selection)
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (selectedDrink !== null) {
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
   }, [messages])
 
   // Load/generate persistent userId and fetch previous session context
@@ -1227,7 +1229,7 @@ function ChatContent() {
                         >
                           <span className="text-2xl">{d.emoji}</span>
                           <span className="text-xs text-gray-300 font-medium leading-tight">{d.name}</span>
-                          <span className="text-[10px] text-gray-600 leading-tight">{d.sub}</span>
+                          <span className="text-[11px] text-gray-500 leading-snug">{d.sub}</span>
                         </button>
                       ))}
                     </div>
@@ -1262,7 +1264,7 @@ function ChatContent() {
                           <CharIcon char={c} size={28} />
                           <div className="flex-1 min-w-0">
                             <p className="text-xs font-medium" style={{ color: c.color }}>{c.name}</p>
-                            <p className="text-[10px] text-gray-500 leading-relaxed">{c.intro}</p>
+                            <p className="text-[10px] text-gray-400 leading-loose mt-0.5">{c.intro}</p>
                           </div>
                         </div>
                       )
