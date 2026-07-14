@@ -13,14 +13,14 @@ import {
 
 // ─── ドリンク選択肢 ───────────────────────────────────────────────────────
 const DRINK_OPTIONS = [
-  { id: 'moyamoya',   emoji: '🍹', name: 'もやもやソーダ',       response: 'そっかあ。気になってることがある日なんだね。話せるところからでいいよ。' },
-  { id: 'tameiki',    emoji: '☕', name: 'ため息カフェラテ',      response: 'うんうん、おつかれさま。ふぅ、ってしたあとちょっと、ゆるまるといいな。今日はゆっくりしていってね。' },
-  { id: 'hitoyasumi', emoji: '🍵', name: 'ひとやすみ茶',         response: 'うんうん。たまには立ち止まる日も大事。ゆったりしていってね。' },
-  { id: 'lemonade',   emoji: '🍋', name: 'なんとなくレモネード', response: 'ふふっ。そういう日もあるよね。席は空いてるから、のんびりしていってね。' },
-  { id: 'yoreyore',   emoji: '🥃', name: 'よれよれハイボール',   response: 'もう十分頑張ったじゃない。今夜はよれよれのままでいいのよ。' },
-  { id: 'shimijimi',  emoji: '🍶', name: 'しみじみ日本酒',       response: 'しみじみする夜もあるよね。ゆっくり飲みましょ。' },
-  { id: 'yakekuso',   emoji: '🍸', name: 'やけくそカクテル',     response: 'やけくそって言えるくらい、ちゃんと向き合ってたんじゃない。' },
-  { id: 'otsukaresam',emoji: '🥂', name: 'おつかれシャンパン',   response: '今日のあなた、よく頑張ったわね。おつかれさまの乾杯しましょ！' },
+  { id: 'yoreyore',    emoji: '🥃', name: 'よれよれハイボール',   sub: 'とにかく疲れ切ってる…！',   response: 'もう十分頑張ったじゃない。今夜はよれよれのままでいいのよ🥃' },
+  { id: 'shimijimi',   emoji: '🍶', name: 'しみじみ日本酒',       sub: 'こんな時はしみじみ…',       response: 'しみじみする日もあるよね。ゆっくり飲みましょ🍶' },
+  { id: 'yakekuso',    emoji: '🍸', name: 'やけくそカクテル',     sub: 'もうやけくそ！',             response: 'やけくそって言えるくらい、ちゃんと向き合ってたんじゃない🍸' },
+  { id: 'otsukaresam', emoji: '🥂', name: 'おつかれシャンパン',   sub: '今日の自分を褒めたい',       response: '今日のあなた、よく頑張ったわね。まずは自分に乾杯しましょ🥂' },
+  { id: 'moyamoya',    emoji: '🍹', name: 'もやもやソーダ',       sub: 'なんとなくモヤってる',       response: 'そっかあ。気になってることがある日なんだね。話せるところからでいいよ😊' },
+  { id: 'tameiki',     emoji: '☕', name: 'ため息カフェラテ',      sub: 'ふぅ…って日なんだ',          response: 'うんうん、おつかれさま。ふぅ、ってしたあとちょっと、ゆるまるといいな。今日はゆっくりしていってね☕' },
+  { id: 'hitoyasumi',  emoji: '🍵', name: 'ひとやすみ茶',         sub: 'ちょっと立ち止まりたい',     response: 'うんうん。たまには立ち止まる日も大事。ゆったりしていってね🍵' },
+  { id: 'lemonade',    emoji: '🍋', name: 'なんとなくレモネード', sub: 'なんとなく来た',             response: 'ふふっ。そういう日もあるよね😊 席は空いてるから、のんびりしていってね。' },
 ] as const
 
 type DrinkId = typeof DRINK_OPTIONS[number]['id']
@@ -1223,10 +1223,11 @@ function ChatContent() {
                         <button
                           key={d.id}
                           onClick={() => handleDrinkSelect(d.id)}
-                          className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-gray-800 bg-[#13111e] hover:border-amber-700/60 hover:bg-amber-950/10 transition-all active:scale-95 text-left"
+                          className="flex flex-col items-start gap-1 px-3 py-3 rounded-xl border border-gray-800 bg-[#13111e] hover:border-amber-700/60 hover:bg-amber-950/10 transition-all active:scale-95 text-left"
                         >
-                          <span className="text-lg">{d.emoji}</span>
-                          <span className="text-xs text-gray-400 leading-tight">{d.name}</span>
+                          <span className="text-2xl">{d.emoji}</span>
+                          <span className="text-xs text-gray-300 font-medium leading-tight">{d.name}</span>
+                          <span className="text-[10px] text-gray-600 leading-tight">{d.sub}</span>
                         </button>
                       ))}
                     </div>
