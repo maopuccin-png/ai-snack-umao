@@ -18,14 +18,18 @@ type DrinkId = typeof CHIBATECH_DRINKS[number]['id']
 
 export default function ChibatechPage() {
   const router = useRouter()
-  const [selected, setSelected] = useState<DrinkId | null>(null)
+  const [nickname, setNickname] = useState('')
   const [entering, setEntering] = useState(false)
 
-  const handleSelect = (drinkId: DrinkId) => {
-    setSelected(drinkId)
+  const canEnter = nickname.trim().length > 0
+
+  const handleEnter = () => {
+    if (!canEnter || entering) return
     setEntering(true)
     setTimeout(() => {
-      router.push(`/chat?nickname=ゲスト&mood=unsure&event=chibatech&drink=${drinkId}`)
+      router.push(
+        `/chat?nickname=${encodeURIComponent(nickname.trim())}&mood=unsure&event=chibatech`
+      )
     }, 900)
   }
 
@@ -77,26 +81,34 @@ export default function ChibatechPage() {
 
         <div className="w-full border-t border-gray-900" />
 
-        {/* ドリンク選択 */}
         <div className="w-full">
-          <p className="text-[11px] text-gray-500 tracking-wider mb-3 text-center">
-            今日の一杯を選んでね
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            {CHIBATECH_DRINKS.map(d => (
-              <button
-                key={d.id}
-                onClick={() => handleSelect(d.id)}
-                disabled={entering}
-                className="flex flex-col items-start gap-1 px-3 py-3 rounded-xl border border-gray-800 bg-[#13111e] hover:border-amber-700/60 hover:bg-amber-950/10 transition-all active:scale-95 text-left"
-              >
-                <span className="text-2xl">{d.emoji}</span>
-                <span className="text-xs text-gray-300 font-medium leading-tight">{d.name}</span>
-                <span className="text-[10px] text-gray-600 leading-tight">{d.sub}</span>
-              </button>
-            ))}
-          </div>
+          <label className="text-[11px] text-gray-500 tracking-wider block mb-2">
+            お名前は？
+          </label>
+          <input
+            type="text"
+            value={nickname}
+            onChange={e => setNickname(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleEnter()}
+            placeholder="ニックネームでOK"
+            maxLength={20}
+            autoFocus
+            className="w-full bg-[#13111e] border border-gray-800 rounded-lg px-4 py-3 text-white text-sm placeholder-gray-700 focus:outline-none focus:border-amber-900 transition-colors"
+          />
         </div>
+
+        <button
+          onClick={handleEnter}
+          disabled={!canEnter}
+          className={`w-full py-3 rounded-lg text-sm font-light tracking-[0.2em] transition-all ${
+            canEnter
+              ? 'bg-amber-700 hover:bg-amber-600 text-white'
+              : 'bg-[#13111e] text-gray-700 cursor-not-allowed'
+          }`}
+        >
+          入 店 す る
+        </button>
+
 
         <p className="text-[12px] text-gray-500 text-center leading-relaxed">
           チャージなし・セット料金なし<br />飲み物は自由（ノンアルOK）

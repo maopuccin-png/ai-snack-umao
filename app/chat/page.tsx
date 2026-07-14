@@ -826,22 +826,6 @@ function ChatContent() {
       characterId: 'mama',
     }
 
-    // CHIBATECHはドリンク選択済みで来るのでドリンク表示をスキップ
-    if (event === 'chibatech') {
-      const drinkParam = new URLSearchParams(window.location.search).get('drink')
-      const drink = DRINK_OPTIONS.find(d => d.id === drinkParam)
-      if (drink) {
-        setSelectedDrink(drink.id as DrinkId)
-        const drinkMsg: Message = {
-          id: 'follow',
-          role: 'assistant',
-          content: `${drink.name}ね、お待たせしました！\nCHIBATECH、盛り上がってるわね。楽しめてる？`,
-          characterId: 'mama',
-        }
-        setMessages([openMsg, drinkMsg])
-        return
-      }
-    }
 
     const drinkSelectionMsg: Message = {
       id: 'drink',
@@ -872,7 +856,7 @@ function ChatContent() {
     const followMsg: Message = {
       id: 'follow',
       role: 'assistant',
-      content: `${option.emoji} ${option.name}、お待たせしました！で、${event === 'web3ai' ? 'Web3 AI概論はどう？' : '今日はどうしたの？'}`,
+      content: `${option.emoji} ${option.name}、お待たせしました！で、${event === 'web3ai' ? 'Web3 AI概論はどう？' : event === 'chibatech' ? '今日はどんな感じ？😊' : '今日はどうしたの？'}`,
       characterId: 'mama',
     }
     setMessages(prev => [
