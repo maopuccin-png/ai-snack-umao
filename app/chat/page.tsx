@@ -744,6 +744,10 @@ function ChatContent() {
   const awayReturnAt = useRef<Partial<Record<CharacterType, number>>>({})
 
   const [focusedChar, setFocusedChar] = useState<CharacterType>('mama')
+  const [showChibatechToast, setShowChibatechToast] = useState(false)
+  const [toastVisible, setToastVisible] = useState(false)
+  const userMsgCountRef = useRef(0)
+  const toastShownRef = useRef(false)
 
   const handleFocusChar = async (cid: CharacterType) => {
     if (cid === focusedChar) return
@@ -911,6 +915,17 @@ function ChatContent() {
 
     const userMsg: Message = { id: `u${Date.now()}`, role: 'user', content: text, characterId: 'mama' }
     let current = addMsg(messages, userMsg)
+
+    if (event === 'chibatech' && !toastShownRef.current) {
+      userMsgCountRef.current += 1
+      if (userMsgCountRef.current >= 2) {
+        toastShownRef.current = true
+        setShowChibatechToast(true)
+        requestAnimationFrame(() => setToastVisible(true))
+        setTimeout(() => setToastVisible(false), 6000)
+        setTimeout(() => setShowChibatechToast(false), 6300)
+      }
+    }
 
     // Save user message to DB (fire and forget)
     fetch('/api/message', {
@@ -1327,6 +1342,27 @@ function ChatContent() {
             >
               <span className="text-gray-500 tracking-widest">···</span>
             </div>
+          </div>
+        )}
+        {showChibatechToast && (
+          <div
+            style={{
+              position: 'fixed',
+              bottom: 'calc(env(safe-area-inset-bottom) + 88px)',
+              left: '50%',
+              transform: `translateX(-50%) translateY(${toastVisible ? '0px' : '20px'})`,
+              opacity: toastVisible ? 1 : 0,
+              transition: 'opacity 0.3s ease, transform 0.3s ease',
+              zIndex: 100,
+              maxWidth: '280px',
+              width: 'calc(100% - 32px)',
+            }}
+            className="rounded-2xl border border-amber-700/30 bg-[#0d0d18]/75 backdrop-blur shadow-md px-4 py-3 text-center"
+          >
+            <p className="text-sm font-semibold text-amber-300">🎁 CHIBATECH本日限定✨</p>
+            <p className="text-sm text-gray-200 leading-relaxed mt-2">
+              Web3AI概論受講生の方は、<br />退店時に🍓のお手土産があります😊
+            </p>
           </div>
         )}
         <div ref={bottomRef} />
