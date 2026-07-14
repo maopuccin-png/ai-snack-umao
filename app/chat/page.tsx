@@ -816,7 +816,7 @@ function ChatContent() {
   useEffect(() => {
     const openContent =
       event === 'web3ai' ? 'いらっしゃい〜。会いたかったわ！講義、おつかれさま。' :
-      event === 'chibatech' ? 'いらっしゃい！今日は来てくれてありがとう。' :
+      event === 'chibatech' ? 'いらっしゃい！🎉CHIBATECH盛り上がってるわね😊今日は来てくれてありがとう✨' :
       MOOD_OPENERS[mood]
 
     const openMsg: Message = {
@@ -830,14 +830,14 @@ function ChatContent() {
     const drinkSelectionMsg: Message = {
       id: 'drink',
       role: 'assistant',
-      content: 'まずは今日の一杯、選んでみる？',
+      content: event === 'chibatech' ? 'まずは今日の一杯、選んでみる？🥂' : 'まずは今日の一杯、選んでみる？',
       characterId: 'mama',
       isDrinkSelection: true,
     }
     const introMsg: Message = {
       id: 'intro',
       role: 'assistant',
-      content: '今夜のメンバーを紹介するわね。',
+      content: event === 'chibatech' ? '今、お店にいる常連さんを紹介するわね🍻' : '今夜のメンバーを紹介するわね。',
       characterId: 'mama',
       isIntro: true,
     }
