@@ -249,7 +249,7 @@ function FarewellStep({ farewellWord, onDone, showUmaoLink }: { farewellWord: st
           className="flex items-center justify-center gap-2 mx-auto w-fit px-4 py-2.5 rounded-xl border border-pink-800/50 bg-pink-950/20 text-pink-300 text-xs hover:border-pink-600 hover:bg-pink-950/40 transition-all mt-2"
         >
           <span>🐴</span>
-          <span>24時間やってる<br />通常版の<br />メタバーススナック<br />UMAOも<br />よかったら遊びに来てね</span>
+          <span>通常版の<br />メタバーススナック<br />UMAOも<br />24時間営業中！</span>
           <span className="text-pink-500">&gt; お店へ<br />寄ってみる🥂</span>
         </a>
       )}
@@ -267,10 +267,13 @@ function ChibatechExitModal({
   onConfirm: () => void
   onCancel: () => void
 }) {
-  type Step = 'confirm' | 'student' | 'ichigo' | 'thanks' | 'farewell'
+  type Step = 'confirm' | 'student' | 'ichigo' | 'feedback' | 'farewell'
   const [step, setStep] = useState<Step>('confirm')
   const [recipient, setRecipient] = useState('')
   const [sending, setSending] = useState(false)
+  const [feedback, setFeedback] = useState('')
+  const [feedbackSending, setFeedbackSending] = useState(false)
+  const [feedbackSent, setFeedbackSent] = useState(false)
 
   const handleReceive = async () => {
     if (!recipient.trim()) return
@@ -281,7 +284,20 @@ function ChibatechExitModal({
       body: JSON.stringify({ sessionId, recipient: recipient.trim() }),
     }).catch(() => {})
     setSending(false)
-    setStep('thanks')
+    setStep('feedback')
+  }
+
+  const handleFeedback = async () => {
+    if (!feedback.trim()) return
+    setFeedbackSending(true)
+    await fetch('/api/event-survey', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, impression: feedback.trim() }),
+    }).catch(() => {})
+    setFeedbackSending(false)
+    setFeedbackSent(true)
+    setTimeout(() => setStep('farewell'), 1000)
   }
 
   return (
@@ -337,18 +353,55 @@ function ChibatechExitModal({
             >
               {sending ? '送信中…' : '受け取る 🍓'}
             </button>
-            <button onClick={() => setStep('farewell')} className="w-full text-[11px] text-gray-700 hover:text-gray-500 transition-colors">
+            <button onClick={() => setStep('feedback')} className="w-full text-[11px] text-gray-700 hover:text-gray-500 transition-colors">
               気持ちだけで十分だよ
             </button>
           </>
         )}
 
-        {step === 'thanks' && (
-          <FarewellStep farewellWord="あとで🍓を送っておくわね。今日はありがとう！また来てね。" onDone={onConfirm}  showUmaoLink />
+        {step === 'feedback' && !feedbackSent && (
+          <>
+            <div className="flex gap-3 items-start mb-4">
+              <CharIcon char={CHARACTERS.mama} size={40} />
+              <div>
+                <p className="text-[10px] font-medium mb-1" style={{ color: CHARACTERS.mama.color }}>{CHARACTERS.mama.title}</p>
+                <p className="text-gray-200 text-sm leading-relaxed">今日は来てくれてありがとう😊<br /><br />よかったら最後に、<br />一言だけ感想を聞かせてもらえる？</p>
+              </div>
+            </div>
+            <input
+              type="text"
+              value={feedback}
+              onChange={e => setFeedback(e.target.value)}
+              placeholder="今日の感想を一言だけ"
+              className="w-full bg-[#13111e] border border-gray-800 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-700 focus:outline-none focus:border-amber-900 mb-3"
+            />
+            <button
+              onClick={handleFeedback}
+              disabled={!feedback.trim() || feedbackSending}
+              className="w-full py-3 bg-amber-700 hover:bg-amber-600 disabled:bg-[#13111e] disabled:text-gray-700 text-white rounded-xl text-sm font-medium mb-2"
+            >
+              {feedbackSending ? '送信中…' : 'ママに伝える'}
+            </button>
+            <button onClick={() => setStep('farewell')} className="w-full text-[11px] text-gray-700 hover:text-gray-500 transition-colors">
+              入力しない
+            </button>
+          </>
         )}
 
+        {step === 'feedback' && feedbackSent && (
+          <div className="text-center py-4">
+            <div className="mx-auto mb-4">
+              <CharIcon char={CHARACTERS.mama} size={64} />
+            </div>
+            <p className="text-gray-200 text-sm leading-relaxed animate-pulse">
+              ありがとう✨<br />大事に読ませてもらうね😊
+            </p>
+          </div>
+        )}
+
+
         {step === 'farewell' && (
-          <FarewellStep farewellWord="ありがとうございました！よかったらまた来てね。" onDone={onConfirm}  showUmaoLink />
+          <FarewellStep farewellWord="ありがとうございました☺️また来てね" onDone={onConfirm}  showUmaoLink />
         )}
 
       </div>
