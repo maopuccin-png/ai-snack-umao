@@ -297,7 +297,7 @@ function ChibatechExitModal({
     }).catch(() => {})
     setFeedbackSending(false)
     setFeedbackSent(true)
-    setTimeout(() => setStep('farewell'), 1000)
+    setTimeout(() => setStep('farewell'), 2500)
   }
 
   return (
@@ -389,13 +389,12 @@ function ChibatechExitModal({
         )}
 
         {step === 'feedback' && feedbackSent && (
-          <div className="text-center py-4">
-            <div className="mx-auto mb-4">
-              <CharIcon char={CHARACTERS.mama} size={64} />
+          <div className="flex gap-3 items-start mb-4">
+            <CharIcon char={CHARACTERS.mama} size={40} />
+            <div>
+              <p className="text-[10px] font-medium mb-1" style={{ color: CHARACTERS.mama.color }}>{CHARACTERS.mama.title}</p>
+              <p className="text-gray-200 text-sm leading-relaxed animate-pulse">ありがとう✨<br />大事に読ませてもらうね😊</p>
             </div>
-            <p className="text-gray-200 text-sm leading-relaxed animate-pulse">
-              ありがとう✨<br />大事に読ませてもらうね😊
-            </p>
           </div>
         )}
 
